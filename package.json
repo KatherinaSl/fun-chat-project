@@ -1,0 +1,62 @@
+{
+  "name": "fun-chat-project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "webpack --mode=production --node-env=production",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack serve --open --mode=development",
+    "format": "npx prettier --write .",
+    "ci:format": "npx prettier --check .",
+    "lint": "npx eslint src/**/*.ts"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{js,jsx}": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@eslint/js": "^9.8.0",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
+    "clean-webpack-plugin": "^4.0.0",
+    "copy-webpack-plugin": "^12.0.2",
+    "css-loader": "^7.1.2",
+    "eslint": "^8.57.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-airbnb-typescript": "^18.0.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.31.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-webpack-plugin": "^4.2.0",
+    "file-loader": "^6.2.0",
+    "globals": "^15.8.0",
+    "html-webpack-plugin": "^5.6.0",
+    "husky": "^9.1.7",
+    "json-server": "^0.16.3",
+    "prettier": "3.3.3",
+    "sass": "^1.77.8",
+    "sass-loader": "^16.0.0",
+    "style-loader": "^4.0.0",
+    "ts-loader": "^9.5.1",
+    "typescript": "^5.5.4",
+    "typescript-eslint": "^7.18.0",
+    "webpack": "^5.93.0",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.4"
+  },
+  "dependencies": {
+    "normalize.css": "^8.0.1"
+  }
+}
