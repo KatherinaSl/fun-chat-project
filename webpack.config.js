@@ -1,13 +1,14 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 /* eslint-disable no-undef */
-const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
-const CopyPlugin = require('copy-webpack-plugin')
-const EslintPlugin = require('eslint-webpack-plugin')
+/* eslint-disable @typescript-eslint/no-var-requires */
+
+const path = require('path');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyPlugin = require('copy-webpack-plugin');
+const EslintPlugin = require('eslint-webpack-plugin');
 
 module.exports = {
-  //   mode: "development",
+  mode: 'development',
   entry: {
     main: path.resolve(__dirname, './src/index.ts'),
   },
@@ -24,8 +25,8 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: path.resolve(__dirname, 'src/assets'), // путь к папке, где лежат картинки
-          to: path.resolve(__dirname, 'dist/img'), // куда будут копированы
+          from: path.resolve(__dirname, 'src/assets'),
+          to: path.resolve(__dirname, 'dist/img'),
         },
       ],
     }),
@@ -69,4 +70,4 @@ module.exports = {
   //   optimization: {
   //     runtimeChunk: "single",
   //   },
-}
+};
