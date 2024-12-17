@@ -24,16 +24,18 @@ export default class LoginView {
     const h2 = createHTMLElement('h1');
     h2.textContent = this.WELCOME_PHRASE;
     const firstInput = this.createInput(
-      'firstName',
+      'text',
       this.NAME_PLACEHOLDER,
       this.getLoginFieldRequirement('name', 2),
       this.NAME_REGEX,
+      'username',
     );
     const secondInput = this.createInput(
-      'surname',
+      'password',
       this.PASSWORD_PLACEHOLDER,
       this.getPasswordFieldRequirement('password', 4),
       this.PASSWORD_REGEX,
+      'current-password',
     );
     const button = createHTMLElement('input', 'submit') as HTMLInputElement;
     button.type = 'submit';
@@ -50,22 +52,27 @@ export default class LoginView {
   }
 
   private createInput(
-    name: string,
     text: string,
+    placeholder: string,
     requirements: string,
     pattern: string,
+    autocomplete?: AutoFill,
   ): HTMLElement {
     const divInput = createHTMLElement('div', 'inputbox');
     const input = createHTMLElement('input') as HTMLInputElement;
-    input.placeholder = text;
+    const divReq = createHTMLElement('div', 'requirements');
+    input.placeholder = placeholder;
     input.required = true;
     input.pattern = pattern;
-    input.type = 'text';
-    input.name = name;
+    input.type = text;
     input.oninvalid = (event) => {
       event.preventDefault();
     };
-    const divReq = createHTMLElement('div', 'requirements');
+
+    if (autocomplete) {
+      input.autocomplete = autocomplete;
+    }
+
     divReq.textContent = requirements;
     divInput.append(input, divReq);
     return divInput;
@@ -74,14 +81,14 @@ export default class LoginView {
   private getLoginFieldRequirement(name: string, minLength: number): string {
     const firstRequirement = `Your ${name} should consist of only English alphabet letters.`;
     const secondRequirement =
-      'You don’t allowed for numerical digits and underscores';
-    const thirdRequirement = `Your ${name} should consist of at least ${minLength} characters and maximum 10 characters`;
+      'You don’t allowed for numerical digits and underscores.';
+    const thirdRequirement = `Your ${name} must have at least ${minLength} characters and maximum 10 characters.`;
     return `${firstRequirement}\n${secondRequirement}\n${thirdRequirement}`;
   }
 
   private getPasswordFieldRequirement(name: string, minLength: number): string {
     const firstRequirement = `Your ${name} should consist of only English alphabet letters.`;
-    const secondRequirement = `Your ${name} should consist of at least ${minLength} characters and maximum 10 characters`;
+    const secondRequirement = `Your password must have at least ${minLength} characters  and maximum 10 characters`;
     return `${firstRequirement}\n${secondRequirement}`;
   }
 }
