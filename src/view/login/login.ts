@@ -64,6 +64,25 @@ export default class LoginView {
     return main;
   }
 
+  public delete() {
+    document.querySelector('main')?.remove();
+  }
+
+  public static createErrorMessage(message: string) {
+    const wrapper = createHTMLElement('div', 'wrapper');
+    const div = createHTMLElement('div', 'error-message');
+    const p = createHTMLElement('p');
+    const button = createHTMLElement('button');
+    button.textContent = 'OK';
+    button.addEventListener('click', () => {
+      wrapper.remove();
+    });
+    p.textContent = message;
+    div.append(p, button);
+    wrapper.append(div);
+    document.querySelector('body')?.append(wrapper);
+  }
+
   private getLoginFieldRequirement(name: string, minLength: number): string {
     const firstRequirement = `Your ${name} should consist of only English alphabet letters.`;
     const secondRequirement =

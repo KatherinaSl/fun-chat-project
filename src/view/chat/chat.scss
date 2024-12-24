@@ -1,0 +1,16 @@
+$border-color: #466eb6;
+
+main {
+  .container {
+    background-image: linear-gradient(to right top, #a1c2f5, #b6d2fa, #c7f1ff);
+    width: 50vw;
+    height: 80vh;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    border: 5px solid $border-color;
+    border-radius: 20px;
+  }
+}
