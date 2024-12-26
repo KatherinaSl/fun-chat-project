@@ -18,15 +18,11 @@ export default class WebSocketClient {
     console.log('connection is opened');
     if (!this.websocket || this.websocket.readyState === WebSocket.CLOSED) {
       this.websocket = new WebSocket(this.url);
-      this.websocket.addEventListener('open', (event) => {
-        console.log(event);
-        // socket.send('Hello Server!');
-      });
     }
     this.setupCallback();
   }
 
-  public send(message: Message) {
+  public async send(message: Message) {
     this.openSocket();
     const obj = JSON.stringify(message);
     this.websocket?.send(obj);
@@ -52,21 +48,4 @@ export default class WebSocketClient {
       };
     }
   }
-
-  // const userLogin = (
-  //   document.querySelector('#username-input') as HTMLInputElement
-  // )?.value;
-  // const userPassword = (
-  //   document.querySelector('#password-input') as HTMLInputElement
-  // )?.value;
-  // const user = {
-  //   id: this.getRandomIdRequest(10000).toString(),
-  //   type: 'USER_LOGIN',
-  //   payload: {
-  //     user: {
-  //       login: userLogin,
-  //       password: userPassword,
-  //     },
-  //   },
-  // };
 }

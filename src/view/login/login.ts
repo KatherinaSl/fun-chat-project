@@ -3,6 +3,10 @@ import loginPic from '../../assets/11155.jpg';
 import './login.scss';
 import FormInputBuilder from './input/formInput';
 import { createSvgLockIcon, createSvgPersonIcon } from '../../util/create-svg';
+import Router from '../../routing/router';
+import Pages from '../../routing/pages';
+import WebSocketClient from '../websocket';
+import ChatPageView from '../chat/chat';
 
 export default class LoginView {
   private WELCOME_PHRASE = 'LOGIN';
@@ -15,6 +19,15 @@ export default class LoginView {
 
   private PASSWORD_REGEX = `[a-zA-Z0-9]{4,10}`;
 
+  private router: Router;
+
+  private websocket: WebSocketClient;
+
+  constructor(router: Router, websocket: WebSocketClient) {
+    this.router = router;
+    this.websocket = websocket;
+  }
+
   public create(): Node {
     const main = createHTMLElement('main');
     const h2 = createHTMLElement('h1');
@@ -25,6 +38,7 @@ export default class LoginView {
     img.src = loginPic as string;
     const form = createHTMLElement('form') as HTMLFormElement;
     form.action = '';
+    form.addEventListener('submit', this.loginClickHandler.bind(this));
 
     const userNameInput = new FormInputBuilder()
       .setId('username-input')
@@ -68,7 +82,7 @@ export default class LoginView {
     document.querySelector('main')?.remove();
   }
 
-  public static createErrorMessage(message: string) {
+  private createErrorMessage(message: string) {
     const wrapper = createHTMLElement('div', 'wrapper');
     const div = createHTMLElement('div', 'error-message');
     const p = createHTMLElement('p');
@@ -95,5 +109,21 @@ export default class LoginView {
     const firstRequirement = `Your ${name} should consist of only English alphabet letters.`;
     const secondRequirement = `Your password must have at least ${minLength} characters  and maximum 10 characters`;
     return `${firstRequirement}\n${secondRequirement}`;
+  }
+
+  public loginClickHandler(event: Event) {
+    event.preventDefault();
+    this.router.navigate(`${Pages.CHAT}`);
+
+    this.websocket.setOnMessageCallback((message) => {
+      if (message.type === 'ERROR') {
+        this.createErrorMessage(message.payload.error!);
+      } else if (message.type === 'USER_LOGIN') {
+        console.log('remove login view part');
+        document.querySelector('main')?.remove();
+        const chatView = new ChatPageView();
+        document.querySelector('body')!.append(chatView.create());
+      }
+    });
   }
 }

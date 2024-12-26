@@ -1,15 +1,20 @@
 import { User } from '../data/interfaces';
-import LoginView from '../view/login/login';
+// import LoginView from '../view/login/login';
 import WebSocketClient from '../view/websocket';
-import ChatView from '../view/chat/chat';
+// import ChatView from '../view/chat/chat';
+import Router from '../routing/router';
+// import Pages from '../routing/pages';
 
 export default class ChatService {
   private websocket: WebSocketClient;
 
+  private router: Router;
+
   MAX_ID = 100000;
 
-  constructor(websocket: WebSocketClient) {
+  constructor(websocket: WebSocketClient, router: Router) {
     this.websocket = websocket;
+    this.router = router;
   }
 
   public login(user: User) {
@@ -22,20 +27,6 @@ export default class ChatService {
     };
 
     this.websocket.send(msg);
-  }
-
-  public setupIncomingMessage() {
-    this.websocket.setOnMessageCallback((message) => {
-      if (message.type === 'ERROR') {
-        LoginView.createErrorMessage(message.payload.error!);
-        // this.websocket.close();
-      } else if (message.type === 'USER_LOGIN') {
-        console.log('remove login view part');
-        document.querySelector('main')?.remove();
-        const chatView = new ChatView();
-        document.querySelector('body')!.append(chatView.create());
-      }
-    });
   }
 
   private generateRequestId(): string {
