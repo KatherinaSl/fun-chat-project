@@ -18,6 +18,8 @@ header {
     p {
       font-size: 1.5em;
       flex-grow: 1;
+      margin-left: 5px;
+      text-decoration: underline;
     }
 
     h1 {
@@ -55,4 +57,25 @@ footer {
   width: 95vw;
   border-radius: 5px;
   border: 2px solid $border-color;
+  margin-bottom: 10px;
+
+  .footer__container {
+    .footer__links {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 20px;
+
+      li {
+        list-style: none;
+        font-size: 1.5em;
+
+        img {
+          width: 3em;
+          height: auto;
+          border-radius: 10px;
+        }
+      }
+    }
+  }
 }

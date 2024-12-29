@@ -85,6 +85,7 @@ export default class LoginView {
 
     document.querySelector('main')?.remove();
     document.querySelector('header')?.remove();
+    document.querySelector('footer')?.remove();
 
     main.append(formPic, formBox);
 

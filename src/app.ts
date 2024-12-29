@@ -6,6 +6,7 @@ import Router from './routing/router';
 import Pages from './routing/pages';
 import AboutView from './view/about/about';
 import Header from './view/chat/header';
+import Footer from './view/chat/footer';
 
 export default class App {
   private loginView: LoginView;
@@ -69,6 +70,8 @@ export default class App {
           const header = new Header(this.router, this.chatService);
           header.create();
           document.querySelector('body')!.append(this.chatView.create());
+          const footer = new Footer();
+          footer.create();
         },
       },
       {
