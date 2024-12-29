@@ -1,0 +1,50 @@
+$button-color: #466eb6;
+$input-border: 2px solid #466eb6;
+$button-hover: #ffffff;
+
+main {
+  .about {
+    width: 40vw;
+    height: 50vh;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+    border: 5px solid $button-color;
+    border-radius: 20px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    h2 {
+      font-size: 2em;
+    }
+
+    p {
+      padding: 20px;
+      font-size: 1.5em;
+      text-align: center;
+    }
+
+    button {
+      justify-content: center;
+      border-radius: 20px;
+      background-color: $button-color;
+      border: $input-border;
+      cursor: pointer;
+      margin: 20px;
+      width: 50%;
+      font-size: 1em;
+      padding: 10px;
+      text-transform: uppercase;
+      transition: 150ms ease;
+
+      &:hover {
+        background-color: $button-hover;
+      }
+    }
+  }
+}

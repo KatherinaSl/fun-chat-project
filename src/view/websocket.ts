@@ -15,17 +15,19 @@ export default class WebSocketClient {
   }
 
   public openSocket() {
-    console.log('connection is opened');
     if (!this.websocket || this.websocket.readyState === WebSocket.CLOSED) {
       this.websocket = new WebSocket(this.url);
     }
     this.setupCallback();
   }
 
-  public async send(message: Message) {
+  public send(message: Message) {
     this.openSocket();
-    const obj = JSON.stringify(message);
-    this.websocket?.send(obj);
+
+    if (this.websocket?.readyState === WebSocket.OPEN) {
+      const obj = JSON.stringify(message);
+      this.websocket?.send(obj);
+    }
   }
 
   public close() {

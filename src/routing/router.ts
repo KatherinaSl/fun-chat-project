@@ -16,6 +16,7 @@ export default class Router {
     this.handler = new HistoryRouterHandler(this.urlChangedHandler.bind(this));
 
     document.addEventListener('DOMContentLoaded', () => {
+      // this.handler.navigate(`${Pages.LOGIN}`);
       this.handler.navigate('');
     });
   }
@@ -26,9 +27,10 @@ export default class Router {
 
   // redo
   private urlChangedHandler(path: string) {
-    const route = this.routes.find((item) =>
-      item.path === path ? path : Pages.LOGIN,
-    );
+    const route = this.routes.find((item) => item.path === path);
+
+    // console.log(`urlChangedHandler path is ${path}`);
+    // console.log(`urlChangedHandler route is ${route?.path}`);
 
     if (!route) {
       this.redirectToLoginPage();
