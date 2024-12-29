@@ -27,8 +27,13 @@ export default class HistoryRouterHandler {
     }
 
     const locationValue = window.location[this.params.locationField];
+
+    // console.log(`navigate location field ${locationValue}`);
+
     if (typeof locationValue === 'string') {
       const path = locationValue.slice(1);
+      // console.log(`navigate  path ${path}`);
+
       this.callback(path);
     }
   }

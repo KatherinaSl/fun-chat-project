@@ -1,9 +1,6 @@
 import { User } from '../data/interfaces';
-// import LoginView from '../view/login/login';
 import WebSocketClient from '../view/websocket';
-// import ChatView from '../view/chat/chat';
 import Router from '../routing/router';
-// import Pages from '../routing/pages';
 
 export default class ChatService {
   private websocket: WebSocketClient;
@@ -12,6 +9,8 @@ export default class ChatService {
 
   MAX_ID = 100000;
 
+  uuid = window.self.crypto.randomUUID();
+
   constructor(websocket: WebSocketClient, router: Router) {
     this.websocket = websocket;
     this.router = router;
@@ -19,17 +18,30 @@ export default class ChatService {
 
   public login(user: User) {
     const msg = {
-      id: this.generateRequestId(),
+      // id: this.generateRequestId(),
+      id: this.uuid,
       type: 'USER_LOGIN',
       payload: {
         user,
       },
     };
 
+    // console.log(msg);
+
     this.websocket.send(msg);
   }
 
-  private generateRequestId(): string {
-    return Math.floor(Math.random() * this.MAX_ID).toString();
+  public logout(user: User) {
+    const msg = {
+      // id: this.generateRequestId(),
+      id: this.uuid,
+      type: 'USER_LOGOUT',
+      payload: {
+        user,
+      },
+    };
+
+    this.websocket.send(msg);
+    this.websocket.close();
   }
 }

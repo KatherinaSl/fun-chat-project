@@ -4,6 +4,7 @@ import createHTMLElement from '../../util/element-creator';
 export default class ChatPageView {
   public create(): Node {
     const main = createHTMLElement('main');
+    main.classList.add('chat');
     const containter = createHTMLElement('div', 'container');
 
     main.append(containter);

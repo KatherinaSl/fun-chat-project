@@ -81,7 +81,8 @@ main {
         }
       }
 
-      .submit {
+      .submit,
+      .button-about {
         justify-content: center;
         border-radius: 20px;
         background-color: $button-color;
@@ -181,7 +182,7 @@ main {
   min-height: 100vh;
   position: fixed;
 
-  .error-message {
+  .error {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -205,7 +206,7 @@ main {
       border: $input-border;
       cursor: pointer;
       margin: 20px;
-      width: 165px;
+      width: 50%;
       font-size: 1em;
       padding: 10px;
       text-transform: uppercase;

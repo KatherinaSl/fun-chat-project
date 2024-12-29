@@ -6,7 +6,8 @@ import { createSvgLockIcon, createSvgPersonIcon } from '../../util/create-svg';
 import Router from '../../routing/router';
 import Pages from '../../routing/pages';
 import WebSocketClient from '../websocket';
-import ChatPageView from '../chat/chat';
+// import ChatPageView from '../chat/chat';
+import ChatService from '../../services/chat-service';
 
 export default class LoginView {
   private WELCOME_PHRASE = 'LOGIN';
@@ -23,9 +24,16 @@ export default class LoginView {
 
   private websocket: WebSocketClient;
 
-  constructor(router: Router, websocket: WebSocketClient) {
+  private chatService: ChatService;
+
+  constructor(
+    router: Router,
+    websocket: WebSocketClient,
+    chatService: ChatService,
+  ) {
     this.router = router;
     this.websocket = websocket;
+    this.chatService = chatService;
   }
 
   public create(): Node {
@@ -62,11 +70,16 @@ export default class LoginView {
       .setSvgLabel(createSvgLockIcon())
       .build();
 
+    passwordInput.addEventListener('Enter', this.loginClickHandler.bind(this));
     const button = createHTMLElement('input', 'submit') as HTMLInputElement;
     button.type = 'submit';
     button.value = 'Sing in';
-    form.append(userNameInput, passwordInput, button);
 
+    const aboutButton = createHTMLElement('button', 'button-about');
+    aboutButton.textContent = 'ABOUT';
+
+    form.append(userNameInput, passwordInput, button, aboutButton);
+    document.body.appendChild(form);
     formPic.append(img);
     formBox.append(h2, form);
 
@@ -75,6 +88,10 @@ export default class LoginView {
 
     main.append(formPic, formBox);
 
+    aboutButton.addEventListener(
+      'click',
+      this.aboutButtonClickHandler.bind(this, `${Pages.ABOUT}`),
+    );
     return main;
   }
 
@@ -84,7 +101,7 @@ export default class LoginView {
 
   private createErrorMessage(message: string) {
     const wrapper = createHTMLElement('div', 'wrapper');
-    const div = createHTMLElement('div', 'error-message');
+    const div = createHTMLElement('div', 'error');
     const p = createHTMLElement('p');
     const button = createHTMLElement('button');
     button.textContent = 'OK';
@@ -113,17 +130,30 @@ export default class LoginView {
 
   public loginClickHandler(event: Event) {
     event.preventDefault();
-    this.router.navigate(`${Pages.CHAT}`);
+    const userLogin = (
+      document.querySelector('#username-input') as HTMLInputElement
+    )?.value;
+    const userPassword = (
+      document.querySelector('#password-input') as HTMLInputElement
+    )?.value;
+    this.chatService.login({ login: userLogin, password: userPassword });
+    this.setUserInfo(userLogin, userPassword);
 
     this.websocket.setOnMessageCallback((message) => {
       if (message.type === 'ERROR') {
         this.createErrorMessage(message.payload.error!);
       } else if (message.type === 'USER_LOGIN') {
-        console.log('remove login view part');
-        document.querySelector('main')?.remove();
-        const chatView = new ChatPageView();
-        document.querySelector('body')!.append(chatView.create());
+        this.router.navigate(`${Pages.CHAT}`);
       }
     });
+  }
+
+  public aboutButtonClickHandler(url: string) {
+    this.router.navigate(url);
+  }
+
+  private setUserInfo(login: string, password: string) {
+    sessionStorage.setItem('user', login);
+    sessionStorage.setItem('password', password);
   }
 }
