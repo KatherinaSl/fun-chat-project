@@ -1,0 +1,36 @@
+@use '../../../vars/colors';
+@use '../../../vars/mix' as *;
+
+header {
+  width: 95vw;
+  border-radius: 5px;
+  border: colors.$border;
+  margin-top: 10px;
+
+  .header__container {
+    width: 100%;
+    @include flex(center, space-around);
+
+    p {
+      font-size: 1.5em;
+      flex-grow: 1;
+      margin-left: 5px;
+      text-decoration: underline;
+    }
+
+    h1 {
+      flex-grow: 1;
+    }
+
+    button {
+      @include button(colors.$button-color, none, 10%);
+      border-radius: 5px;
+      margin: 10px;
+
+      &:hover {
+        background-color: colors.$button-hover;
+        border: colors.$hover-border;
+      }
+    }
+  }
+}

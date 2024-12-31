@@ -1,18 +1,20 @@
-// id - request identifier
-// login - user's login
-// password - user's password
-
-// type RequestType = 'USER_LOGIN' | 'ERROR';
+export type MessageType =
+  | 'USER_LOGIN'
+  | 'USER_LOGOUT'
+  | 'USER_ACTIVE'
+  | 'USER_INACTIVE'
+  | 'USER_EXTERNAL_LOGIN';
 
 export interface Message {
   id: string | null;
-  type: string;
-  payload: MessagePayload;
+  type: MessageType;
+  payload: MessagePayload | null;
 }
 
 export interface MessagePayload {
   user?: User;
   error?: string;
+  users?: User[];
 }
 
 export interface User {

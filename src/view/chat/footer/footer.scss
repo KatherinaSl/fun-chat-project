@@ -1,0 +1,27 @@
+@use '../../../vars/colors';
+@use '../../../vars/mix' as *;
+
+footer {
+  width: 95vw;
+  border-radius: 5px;
+  background-image: colors.$background-image;
+  margin-bottom: 10px;
+
+  .footer__container {
+    .footer__links {
+      @include flex(center, flex-end);
+      padding: 5px;
+
+      li {
+        list-style: none;
+        padding: 5px;
+
+        img {
+          width: 3em;
+          height: auto;
+          border-radius: 10px;
+        }
+      }
+    }
+  }
+}

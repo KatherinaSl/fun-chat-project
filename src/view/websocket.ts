@@ -23,7 +23,6 @@ export default class WebSocketClient {
 
   public send(message: Message) {
     this.openSocket();
-
     if (this.websocket?.readyState === WebSocket.OPEN) {
       const obj = JSON.stringify(message);
       this.websocket?.send(obj);
