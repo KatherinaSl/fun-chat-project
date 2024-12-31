@@ -1,0 +1,28 @@
+@use './colors';
+
+@mixin button($background, $border, $width: 50%) {
+  justify-content: center;
+  border-radius: 20px;
+  background-color: $background;
+  border: $border;
+  cursor: pointer;
+  margin: 20px;
+  width: $width;
+  font-size: 1em;
+  padding: 10px;
+  text-transform: uppercase;
+  transition: 150ms ease;
+}
+
+@mixin flex($x: center, $y: center) {
+  display: flex;
+  align-items: $x;
+  justify-content: $y;
+}
+
+@mixin center-display() {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

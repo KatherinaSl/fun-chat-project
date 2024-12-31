@@ -1,23 +1,17 @@
-$button-color: #466eb6;
-$input-border: 2px solid #466eb6;
-$button-hover: #ffffff;
+@use '../../vars/colors';
+@use '../../vars/mix' as *;
 
 main {
   .about {
+    @include center-display();
+    @include flex();
+    flex-direction: column;
     width: 40vw;
     height: 50vh;
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    margin: 0;
-    border: 5px solid $button-color;
-    border-radius: 20px;
 
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    margin: 0;
+    border: colors.$about-border;
+    border-radius: 20px;
 
     h2 {
       font-size: 2em;
@@ -30,20 +24,10 @@ main {
     }
 
     button {
-      justify-content: center;
-      border-radius: 20px;
-      background-color: $button-color;
-      border: $input-border;
-      cursor: pointer;
-      margin: 20px;
-      width: 50%;
-      font-size: 1em;
-      padding: 10px;
-      text-transform: uppercase;
-      transition: 150ms ease;
+      @include button(colors.$border-color, colors.$border);
 
       &:hover {
-        background-color: $button-hover;
+        background-color: colors.$button-hover;
       }
     }
   }

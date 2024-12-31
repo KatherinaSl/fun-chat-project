@@ -1,0 +1,48 @@
+@use '../../vars/colors';
+@use '../../vars/mix' as *;
+
+.wrapper {
+  @include flex();
+
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  background-color: colors.$error-background-color;
+
+  z-index: 1;
+  width: 100%;
+  opacity: 100;
+  flex-direction: column;
+  text-align: center;
+  min-height: 100vh;
+  position: fixed;
+
+  .error {
+    @include flex();
+    flex-direction: column;
+    text-align: center;
+    width: 20vw;
+    background-color: colors.$button-hover;
+    border-radius: 10px;
+
+    p {
+      font-size: 1.5em;
+      text-transform: uppercase;
+      padding: 10px;
+    }
+
+    button {
+      @include button(colors.$border-color, colors.$login-input-border);
+
+      &:hover {
+        background-color: colors.$button-hover;
+      }
+    }
+  }
+}
+
+.hidden {
+  display: none;
+}

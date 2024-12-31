@@ -1,47 +1,67 @@
-import { User } from '../data/interfaces';
+import { Message, MessagePayload, MessageType, User } from '../data/interfaces';
 import WebSocketClient from '../view/websocket';
-import Router from '../routing/router';
 
 export default class ChatService {
   private websocket: WebSocketClient;
 
-  private router: Router;
+  private handlers = new Map<string, (message: Message) => void>();
 
-  MAX_ID = 100000;
-
-  uuid = window.self.crypto.randomUUID();
-
-  constructor(websocket: WebSocketClient, router: Router) {
+  constructor(websocket: WebSocketClient) {
     this.websocket = websocket;
-    this.router = router;
+    this.setupMessageHandlers();
   }
 
   public login(user: User) {
-    const msg = {
-      // id: this.generateRequestId(),
-      id: this.uuid,
-      type: 'USER_LOGIN',
-      payload: {
-        user,
-      },
-    };
-
-    // console.log(msg);
-
+    const msg = this.createMessage('USER_LOGIN', { user });
     this.websocket.send(msg);
   }
 
   public logout(user: User) {
-    const msg = {
-      // id: this.generateRequestId(),
-      id: this.uuid,
-      type: 'USER_LOGOUT',
-      payload: {
-        user,
-      },
-    };
-
+    const msg = this.createMessage('USER_LOGOUT', { user });
     this.websocket.send(msg);
     this.websocket.close();
+  }
+
+  public getAllLoginUsers() {
+    const msg = this.createMessage('USER_ACTIVE');
+    this.websocket.send(msg);
+  }
+
+  public getAllLogoutUsers() {
+    const msg = this.createMessage('USER_INACTIVE');
+    this.websocket.send(msg);
+  }
+
+  public getThirdPartyUserLogin(user: User) {
+    const msg = this.createMessage('USER_EXTERNAL_LOGIN', { user });
+    this.websocket.send(msg);
+  }
+
+  public addMessageHandler(type: string, handler: (msg: Message) => void) {
+    this.handlers.set(type, handler);
+  }
+
+  private getRandomRequestId() {
+    return window.self.crypto.randomUUID();
+  }
+
+  private setupMessageHandlers() {
+    this.websocket.setOnMessageCallback((message) => {
+      const handler = this.handlers.get(message.type);
+      if (handler) {
+        handler(message);
+      }
+    });
+  }
+
+  private createMessage(
+    type: MessageType,
+    payload: MessagePayload | null = null,
+  ): Message {
+    return {
+      id: this.getRandomRequestId(),
+      type,
+      payload,
+    };
   }
 }

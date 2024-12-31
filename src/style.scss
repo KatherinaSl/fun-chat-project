@@ -1,6 +1,4 @@
-$button-color: #466eb6;
-$input-border: 2px solid #466eb6;
-$button-hover: #ffffff;
+@use './vars/mix' as *;
 
 * {
   padding: 0;
@@ -9,9 +7,7 @@ $button-hover: #ffffff;
 }
 
 body {
-  display: flex;
+  @include flex();
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
   gap: 10px;
 }

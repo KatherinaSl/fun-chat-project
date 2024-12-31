@@ -1,15 +1,8 @@
-$button-color: #466eb6;
-$input-border: 2px solid #a1c2f5;
-$text-color: #000000;
-$invalid-form-border: 2px solid #75a6f0;
-$requirements-color: #ff0000;
-$button-hover: #ffffff;
+@use '../../vars/colors';
+@use '../../vars/mix' as *;
 
 main {
-  display: flex;
-  flex-direction: row;
-  justify-content: center;
-  align-items: center;
+  @include flex();
 
   .login-img {
     width: 50vw;
@@ -30,25 +23,19 @@ main {
     margin: 50px;
     width: max(30%, 500px);
     min-height: 50vh;
-    background-image: linear-gradient(to right top, #a1c2f5, #b6d2fa, #c7f1ff);
+    background-image: colors.$background-image;
     border-radius: 20px;
 
-    display: flex;
+    @include flex();
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
 
     @media screen and (max-width: 1300px) {
+      @include center-display();
       width: min(500px, 100%);
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       margin: 0;
     }
 
     h1 {
-      color: $text-color;
       text-align: center;
       font-size: 3em;
 
@@ -59,50 +46,42 @@ main {
     }
 
     form {
+      @include flex(center, none);
       width: min(300px, 100%);
-      display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 10px;
 
-      > .inputbox {
+      .inputbox {
+        @include flex(none);
         width: 100%;
-        display: flex;
-        justify-content: center;
         flex-wrap: wrap;
 
         label {
+          @include flex();
           flex-shrink: 0;
           height: 50px;
           width: 50px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
+        }
+
+        &:has(~ input[type='submit']:focus):has(> input:invalid) {
+          & .requirements {
+            max-height: 200px;
+          }
         }
       }
 
       .submit,
-      .button-about {
-        justify-content: center;
-        border-radius: 20px;
-        background-color: $button-color;
-        border: $input-border;
-        cursor: pointer;
-        margin: 0 70px 20px 70px;
-        width: 165px;
-        font-size: 1em;
-        padding: 10px;
-        text-transform: uppercase;
-        transition: 150ms ease;
+      button {
+        @include button(colors.$border-color, colors.$login-input-border);
 
         &:hover {
-          background-color: $button-hover;
+          background-color: colors.$button-hover;
         }
       }
 
       input[type='text'],
       input[type='password'] {
-        border: $input-border;
+        border: colors.$login-input-border;
 
         box-sizing: border-box;
         flex: 1 0 50%;
@@ -113,12 +92,11 @@ main {
         background: white;
         outline: none;
         font-size: 1.5em;
-        color: $text-color;
 
         text-align: center;
 
         &:hover {
-          border: 2px solid $button-color;
+          border: colors.$border;
         }
 
         &:focus::placeholder {
@@ -127,7 +105,7 @@ main {
 
         &:invalid:focus,
         &:invalid:not(:focus):not(:placeholder-shown) {
-          border-color: #f06272;
+          border-color: colors.$requirements-color;
         }
 
         &:invalid:focus:not(:placeholder-shown) ~ .requirements {
@@ -141,7 +119,7 @@ main {
 
       .requirements {
         transition: 0.28s;
-        color: #ff0000;
+        color: colors.$requirements-color;
         font-style: italic;
         white-space: pre-line;
         text-align: justify;
@@ -155,70 +133,4 @@ main {
       }
     }
   }
-
-  .inputbox:has(~ input[type='submit']:focus):has(> input:invalid) {
-    & .requirements {
-      max-height: 200px;
-    }
-  }
-}
-
-.wrapper {
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0;
-
-  background-color: rgba(41, 41, 41, 0.6);
-
-  z-index: 1;
-  width: 100%;
-  opacity: 100;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-  min-height: 100vh;
-  position: fixed;
-
-  .error {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    width: 20vw;
-    background-color: white;
-    border-radius: 10px;
-
-    p {
-      color: #000000;
-      font-size: 1.5em;
-      text-transform: uppercase;
-      padding: 10px;
-    }
-
-    button {
-      justify-content: center;
-      border-radius: 20px;
-      background-color: $button-color;
-      border: $input-border;
-      cursor: pointer;
-      margin: 20px;
-      width: 50%;
-      font-size: 1em;
-      padding: 10px;
-      text-transform: uppercase;
-      transition: 150ms ease;
-
-      &:hover {
-        background-color: $button-hover;
-      }
-    }
-  }
-}
-
-.hidden {
-  display: none;
 }

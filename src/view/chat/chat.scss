@@ -1,81 +1,52 @@
-$border-color: #466eb6;
-$button-color: #a1c2f5;
-$button-hover: #ffffff;
-$input-border: #000000;
+@use '../../vars/colors';
+@use '../../vars/mix' as *;
 
-header {
-  width: 95vw;
-  border-radius: 5px;
-  border: 2px solid $border-color;
-  margin-top: 10px;
-
-  .header__container {
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-
-    p {
-      font-size: 1.5em;
-      flex-grow: 1;
-      margin-left: 5px;
-      text-decoration: underline;
-    }
-
-    h1 {
-      flex-grow: 1;
-    }
-
-    button {
-      border-radius: 5px;
-      background-color: $button-color;
-      border: none;
-      cursor: pointer;
-      width: 10%;
-      margin: 10px;
-      font-size: 1em;
-      padding: 10px;
-      text-transform: uppercase;
-      transition: 150ms ease;
-
-      &:hover {
-        background-color: $button-hover;
-        border: 2px solid $input-border;
-      }
-    }
-  }
-}
-
-.chat {
+.main__container {
+  display: flex;
   width: 95vw;
   height: 70vh;
   border-radius: 5px;
-  border: 2px solid $border-color;
-}
+  border: colors.$border;
 
-footer {
-  width: 95vw;
-  border-radius: 5px;
-  border: 2px solid $border-color;
-  margin-bottom: 10px;
+  .main__users {
+    width: 20vw;
+    height: 70vh;
+    border-right: colors.$border;
+    @include flex(none, flex-start);
+    flex-direction: column;
+    gap: 10px;
 
-  .footer__container {
-    .footer__links {
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      padding: 20px;
+    .search-form {
+      margin: 5px;
+      padding: 5px;
+      font-size: 1.2em;
+    }
+
+    ul {
+      font-size: 1.5em;
 
       li {
+        @include flex(none, space-between);
         list-style: none;
-        font-size: 1.5em;
+        cursor: pointer;
+        padding-left: 15px;
 
-        img {
-          width: 3em;
-          height: auto;
-          border-radius: 10px;
+        svg {
+          width: 5%;
+          align-self: center;
+          padding-right: 50px;
+        }
+
+        &:hover {
+          background-color: colors.$hover-background;
         }
       }
     }
   }
+
+  .main__chat {
+    width: 90vw;
+  }
 }
+
+

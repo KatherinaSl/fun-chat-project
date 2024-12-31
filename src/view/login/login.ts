@@ -1,13 +1,14 @@
+import './login.scss';
+import './error.scss';
 import createHTMLElement from '../../util/element-creator';
 import loginPic from '../../assets/11155.jpg';
-import './login.scss';
 import FormInputBuilder from './input/formInput';
 import { createSvgLockIcon, createSvgPersonIcon } from '../../util/create-svg';
 import Router from '../../routing/router';
 import Pages from '../../routing/pages';
 import WebSocketClient from '../websocket';
-// import ChatPageView from '../chat/chat';
 import ChatService from '../../services/chat-service';
+import * as Constants from '../../constants';
 
 export default class LoginView {
   private WELCOME_PHRASE = 'LOGIN';
@@ -34,6 +35,12 @@ export default class LoginView {
     this.router = router;
     this.websocket = websocket;
     this.chatService = chatService;
+    this.chatService.addMessageHandler('ERROR', (msg) =>
+      this.createErrorMessage(msg.payload!.error!),
+    );
+    this.chatService.addMessageHandler('USER_LOGIN', () => {
+      this.router.navigate(`${Pages.CHAT}`);
+    });
   }
 
   public create(): Node {
@@ -70,13 +77,12 @@ export default class LoginView {
       .setSvgLabel(createSvgLockIcon())
       .build();
 
-    passwordInput.addEventListener('Enter', this.loginClickHandler.bind(this));
     const button = createHTMLElement('input', 'submit') as HTMLInputElement;
     button.type = 'submit';
-    button.value = 'Sing in';
+    button.value = Constants.BUTTONS.SIGNIN_BUTTON;
 
-    const aboutButton = createHTMLElement('button', 'button-about');
-    aboutButton.textContent = 'ABOUT';
+    const aboutButton = createHTMLElement('button');
+    aboutButton.textContent = Constants.APP_PAGES.ABOUT_PAGE;
 
     form.append(userNameInput, passwordInput, button, aboutButton);
     document.body.appendChild(form);
@@ -139,14 +145,6 @@ export default class LoginView {
     )?.value;
     this.chatService.login({ login: userLogin, password: userPassword });
     this.setUserInfo(userLogin, userPassword);
-
-    this.websocket.setOnMessageCallback((message) => {
-      if (message.type === 'ERROR') {
-        this.createErrorMessage(message.payload.error!);
-      } else if (message.type === 'USER_LOGIN') {
-        this.router.navigate(`${Pages.CHAT}`);
-      }
-    });
   }
 
   public aboutButtonClickHandler(url: string) {

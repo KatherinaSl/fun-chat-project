@@ -5,8 +5,8 @@ import WebSocketClient from './view/websocket';
 import Router from './routing/router';
 import Pages from './routing/pages';
 import AboutView from './view/about/about';
-import Header from './view/chat/header';
-import Footer from './view/chat/footer';
+import Header from './view/chat/header/header';
+import Footer from './view/chat/footer/footer';
 
 export default class App {
   private loginView: LoginView;
@@ -25,13 +25,13 @@ export default class App {
     const routes = this.createRoutes();
     this.router = new Router(routes);
     this.websocket = new WebSocketClient('ws://localhost:4000');
-    this.chatService = new ChatService(this.websocket, this.router);
+    this.chatService = new ChatService(this.websocket);
     this.loginView = new LoginView(
       this.router,
       this.websocket,
       this.chatService,
     );
-    this.chatView = new ChatView();
+    this.chatView = new ChatView(this.chatService);
     this.aboutView = new AboutView(this.router);
   }
 
@@ -45,7 +45,6 @@ export default class App {
         path: ``,
         callback: () => {
           if (sessionStorage.length) {
-            console.log('login page disabled');
             this.router.navigate(`${Pages.CHAT}`);
           } else {
             this.createLoginView();
@@ -56,7 +55,6 @@ export default class App {
         path: `${Pages.LOGIN}`,
         callback: () => {
           if (sessionStorage.length) {
-            console.log('login page disabled');
             this.router.navigate(`${Pages.CHAT}`);
           } else {
             this.createLoginView();

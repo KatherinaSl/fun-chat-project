@@ -1,5 +1,4 @@
 import createHTMLElement from '../../../util/element-creator';
-// import { createSvgPersonIcon } from '../../../util/create-svg';
 
 export default class FormInputBuilder {
   private input: HTMLInputElement;

@@ -1,8 +1,9 @@
-import './chat.scss';
-import createHTMLElement from '../../util/element-creator';
-import Pages from '../../routing/pages';
-import Router from '../../routing/router';
-import ChatService from '../../services/chat-service';
+import './header.scss';
+import createHTMLElement from '../../../util/element-creator';
+import Pages from '../../../routing/pages';
+import Router from '../../../routing/router';
+import ChatService from '../../../services/chat-service';
+import * as Constants from '../../../constants';
 
 export default class Header {
   private router: Router;
@@ -21,17 +22,17 @@ export default class Header {
     username.textContent = `User: ${this.getUserName()}`;
 
     const title = createHTMLElement('h1');
-    title.textContent = 'Fun Chat';
+    title.textContent = Constants.APP_NAME;
 
     const aboutButton = createHTMLElement('button');
-    aboutButton.textContent = 'About';
+    aboutButton.textContent = Constants.APP_PAGES.ABOUT_PAGE;
     aboutButton.addEventListener(
       'click',
       this.aboutButtonClickHandler.bind(this, `${Pages.ABOUT}`),
     );
 
     const logoutButton = createHTMLElement('button');
-    logoutButton.textContent = 'Log out';
+    logoutButton.textContent = Constants.BUTTONS.LOGOUT_BUTTON;
     logoutButton.addEventListener(
       'click',
       this.logoutButtonHandler.bind(this, `${Pages.LOGIN}`),
