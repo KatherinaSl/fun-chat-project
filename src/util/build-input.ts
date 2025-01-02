@@ -1,4 +1,4 @@
-import createHTMLElement from '../../../util/element-creator';
+import createHTMLElement from './element-creator';
 
 export default class FormInputBuilder {
   private input: HTMLInputElement;
