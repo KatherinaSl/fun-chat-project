@@ -32,11 +32,6 @@ export default class ChatService {
     this.websocket.send(msg);
   }
 
-  public getThirdPartyUserLogin(user: User) {
-    const msg = this.createMessage('USER_EXTERNAL_LOGIN', { user });
-    this.websocket.send(msg);
-  }
-
   public addMessageHandler(type: string, handler: (msg: Message) => void) {
     this.handlers.set(type, handler);
   }

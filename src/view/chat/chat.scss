@@ -17,9 +17,14 @@
     gap: 10px;
 
     .search-form {
+      width: 90%;
       margin: 5px;
       padding: 5px;
       font-size: 1.2em;
+
+      &:focus::placeholder {
+        color: transparent;
+      }
     }
 
     ul {
@@ -48,5 +53,3 @@
     width: 90vw;
   }
 }
-
-

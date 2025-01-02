@@ -2,7 +2,7 @@ import './login.scss';
 import './error.scss';
 import createHTMLElement from '../../util/element-creator';
 import loginPic from '../../assets/11155.jpg';
-import FormInputBuilder from './input/formInput';
+import FormInputBuilder from '../../util/build-input';
 import { createSvgLockIcon, createSvgPersonIcon } from '../../util/create-svg';
 import Router from '../../routing/router';
 import Pages from '../../routing/pages';
