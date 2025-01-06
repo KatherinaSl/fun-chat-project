@@ -6,7 +6,6 @@ import FormInputBuilder from '../../util/build-input';
 import { createSvgLockIcon, createSvgPersonIcon } from '../../util/create-svg';
 import Router from '../../routing/router';
 import Pages from '../../routing/pages';
-import WebSocketClient from '../websocket';
 import ChatService from '../../services/chat-service';
 import * as Constants from '../../constants';
 
@@ -23,17 +22,10 @@ export default class LoginView {
 
   private router: Router;
 
-  private websocket: WebSocketClient;
-
   private chatService: ChatService;
 
-  constructor(
-    router: Router,
-    websocket: WebSocketClient,
-    chatService: ChatService,
-  ) {
+  constructor(router: Router, chatService: ChatService) {
     this.router = router;
-    this.websocket = websocket;
     this.chatService = chatService;
     this.chatService.addMessageHandler('ERROR', (msg) =>
       this.createErrorMessage(msg.payload!.error!),
