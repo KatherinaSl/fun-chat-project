@@ -7,7 +7,7 @@
 }
 
 body {
-  @include flex();
+  @include flex(center, space-between);
+  height: 100vh;
   flex-direction: column;
-  gap: 10px;
 }

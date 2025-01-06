@@ -2,17 +2,20 @@
 @use '../../vars/mix' as *;
 
 .main__container {
+  box-sizing: border-box;
   display: flex;
+  margin: 10px 0;
+  flex: 1 0 auto;
   width: 95vw;
-  height: 70vh;
+  // height: 70vh;
   border-radius: 5px;
   border: colors.$border;
 
   .main__users {
+    height: 100%;
     width: 20vw;
-    height: 70vh;
     border-right: colors.$border;
-    @include flex(none, flex-start);
+    @include flex(normal, flex-start);
     flex-direction: column;
     gap: 10px;
 
@@ -31,7 +34,7 @@
       font-size: 1.5em;
 
       li {
-        @include flex(none, space-between);
+        @include flex(normal, space-between);
         list-style: none;
         cursor: pointer;
         padding-left: 15px;
@@ -50,6 +53,60 @@
   }
 
   .main__chat {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
     width: 90vw;
+    box-sizing: border-box;
+
+    .main__chat__user {
+      box-sizing: border-box;
+      height: 10%;
+      border-radius: 0 5px 0 0;
+      background-image: colors.$background-image;
+    }
+
+    .main__chat__dialogue {
+      @include flex();
+      height: 80%;
+      box-sizing: border-box;
+      p {
+        font-size: 1.5em;
+      }
+    }
+
+    .main__chat__msg {
+      @include flex(center, space-between);
+      height: 10%;
+      box-sizing: border-box;
+      border: none {
+        top: colors.$border;
+      }
+
+      input[type='text'] {
+        width: 90%;
+        margin: 5px;
+        padding: 5px;
+        font-size: 1.2em;
+
+        &:focus::placeholder {
+          color: transparent;
+        }
+      }
+
+      button {
+        @include button(colors.$button-color, none, 5%);
+        text-transform: none;
+        border-radius: 2px;
+        &:hover {
+          background-color: colors.$button-hover;
+          border: colors.$hover-border;
+        }
+        &:hover:disabled {
+          background-color: colors.$button-color;
+          border: none;
+        }
+      }
+    }
   }
 }

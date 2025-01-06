@@ -6,6 +6,7 @@ header {
   border-radius: 5px;
   border: colors.$border;
   margin-top: 10px;
+  flex-shrink: 0;
 
   .header__container {
     width: 100%;
@@ -15,7 +16,11 @@ header {
       font-size: 1.5em;
       flex-grow: 1;
       margin-left: 5px;
-      text-decoration: underline;
+      cursor: pointer;
+
+      &:hover {
+        text-decoration: underline;
+      }
     }
 
     h1 {

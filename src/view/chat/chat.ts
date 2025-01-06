@@ -3,6 +3,7 @@ import createHTMLElement from '../../util/element-creator';
 import ChatService from '../../services/chat-service';
 import { Message } from '../../data/interfaces';
 import { creatOnlineIcon, creatOfflineIcon } from '../../util/create-svg';
+import DialogueView from './dialogue';
 
 export default class ChatPageView {
   private chatService: ChatService;
@@ -35,22 +36,25 @@ export default class ChatPageView {
     input.addEventListener('keyup', this.searchUserHandler.bind(this));
     form.append(input);
     const ul = createHTMLElement('ul');
-    const messageField = createHTMLElement('div', 'main__chat');
     userList.append(form, ul);
+
+    const dialogueView = new DialogueView(); // todo work on naming\structure
+
     this.chatService.getAllLoginUsers();
     this.chatService.getAllLogoutUsers();
-    main.append(userList, messageField);
+    main.append(userList, dialogueView.create());
     return main;
   }
 
   public fillUsersList(msg: Message) {
     const ul = document.querySelector('.main__users ul');
     const userLogin = sessionStorage.getItem('user');
-    const onlineUsers = msg.payload?.users!.filter(
+    const users = msg.payload?.users!.filter(
       (user) => user.login !== userLogin,
     );
-    onlineUsers?.forEach((user) => {
+    users?.forEach((user) => {
       const li = createHTMLElement('li');
+      li.addEventListener('click', this.showUserInfoHandler.bind(this));
       li.textContent = user.login;
       if (user.isLogined === true) {
         li.innerHTML += creatOnlineIcon();
@@ -64,7 +68,14 @@ export default class ChatPageView {
   public getThirdPartyUser(msg: Message) {
     const allUsers = document.querySelectorAll('.main__users li');
     const user = msg.payload?.user;
-    if (user?.isLogined) {
+
+    if (allUsers.length === 0) {
+      const listItem = createHTMLElement('li');
+      listItem.addEventListener('click', this.showUserInfoHandler.bind(this));
+      listItem.textContent = user!.login;
+      listItem.innerHTML += creatOnlineIcon();
+      document.querySelector('.main__users ul')?.append(listItem);
+    } else if (user?.isLogined) {
       const loginUser = user.login;
       allUsers.forEach((li) => {
         if (li.textContent === loginUser) {
@@ -96,5 +107,13 @@ export default class ChatPageView {
         (item as HTMLUListElement).style.display = 'none';
       }
     });
+  }
+
+  private showUserInfoHandler(event: Event) {
+    console.log(event.target);
+    // const user = (event.target as HTMLUListElement).textContent;
+    // console.log(user);
+    // (document.querySelector('.main__chat__user p') as HTMLElement).innerText =
+    //   user as string;
   }
 }

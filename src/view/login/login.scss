@@ -46,13 +46,13 @@ main {
     }
 
     form {
-      @include flex(center, none);
+      @include flex(center, normal);
       width: min(300px, 100%);
       flex-direction: column;
       gap: 10px;
 
       .inputbox {
-        @include flex(none);
+        @include flex(normal, normal);
         width: 100%;
         flex-wrap: wrap;
 
