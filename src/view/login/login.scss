@@ -1,5 +1,6 @@
 @use '../../vars/colors';
 @use '../../vars/mix' as *;
+@use '../../vars/breakpoints';
 
 main {
   @include flex();
@@ -8,7 +9,7 @@ main {
     width: 50vw;
     height: 100vh;
 
-    @media screen and (max-width: 1300px) {
+    @media (max-width: breakpoints.$breakpoint-desktop) {
       display: none;
     }
 
@@ -29,7 +30,7 @@ main {
     @include flex();
     flex-direction: column;
 
-    @media screen and (max-width: 1300px) {
+    @media (max-width: breakpoints.$breakpoint-desktop) {
       @include center-display();
       width: min(500px, 100%);
       margin: 0;
@@ -43,6 +44,10 @@ main {
       font-optical-sizing: auto;
       font-weight: 900;
       font-style: italic;
+
+      @media (max-width: breakpoints.$breakpoint-desktop) {
+        font-size: 2em;
+      }
     }
 
     form {
@@ -73,6 +78,7 @@ main {
       .submit,
       button {
         @include button(colors.$border-color, colors.$login-input-border);
+        margin: 0;
 
         &:hover {
           background-color: colors.$button-hover;
@@ -134,3 +140,19 @@ main {
     }
   }
 }
+
+// @media (max-width: breakpoints.$breakpoint-desktop) {
+//   .login-img {
+//     display: none;
+//   }
+
+//   .form-box {
+//     @include center-display();
+//     width: min(500px, 100%);
+//     margin: 0;
+
+//     h1 {
+//       font-size: 2em;
+//     }
+//   }
+// }

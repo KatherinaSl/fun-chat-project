@@ -38,7 +38,7 @@ export default class ChatPageView {
     const ul = createHTMLElement('ul');
     userList.append(form, ul);
 
-    const dialogueView = new DialogueView(); // todo work on naming\structure
+    const dialogueView = new DialogueView();
 
     this.chatService.getAllLoginUsers();
     this.chatService.getAllLogoutUsers();
@@ -111,9 +111,12 @@ export default class ChatPageView {
 
   private showUserInfoHandler(event: Event) {
     console.log(event.target);
-    // const user = (event.target as HTMLUListElement).textContent;
-    // console.log(user);
-    // (document.querySelector('.main__chat__user p') as HTMLElement).innerText =
-    //   user as string;
+    const user = (event.target as HTMLUListElement).textContent as string;
+    console.log(user);
+    const dialogue = new DialogueView(user);
+    document.querySelector('.main__chat')?.remove();
+    document
+      .querySelector('.main__container')
+      ?.append(dialogue.createDialogue(user));
   }
 }

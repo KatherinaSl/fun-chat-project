@@ -1,5 +1,6 @@
 @use '../../vars/colors';
 @use '../../vars/mix' as *;
+@use '../../vars/breakpoints';
 
 main {
   .about {
@@ -13,14 +14,36 @@ main {
     border: colors.$about-border;
     border-radius: 20px;
 
+    @media (max-width: breakpoints.$breakpoint-desktop) {
+      width: 70vw;
+    }
+
+    @media (max-width: breakpoints.$breakpoint-tablet) {
+      width: 80vw;
+      border: none;
+    }
+
+    @media (max-width: breakpoints.$breakpoint-mobile) {
+      width: 90vw;
+      border: none;
+    }
+
     h2 {
       font-size: 2em;
+
+      @media (max-width: breakpoints.$breakpoint-tablet) {
+        font-size: 1.5em;
+      }
     }
 
     p {
       padding: 20px;
       font-size: 1.5em;
       text-align: center;
+
+      @media (max-width: breakpoints.$breakpoint-tablet) {
+        font-size: 1.2em;
+      }
     }
 
     button {
@@ -28,6 +51,20 @@ main {
 
       &:hover {
         background-color: colors.$button-hover;
+      }
+
+      @media (max-width: breakpoints.$breakpoint-desktop) {
+        width: 30%;
+      }
+
+      @media (max-width: breakpoints.$breakpoint-tablet) {
+        width: 15%;
+        font-size: 0.8em;
+      }
+
+      @media (max-width: breakpoints.$breakpoint-mobile) {
+        width: 18%;
+        font-size: 0.8em;
       }
     }
   }

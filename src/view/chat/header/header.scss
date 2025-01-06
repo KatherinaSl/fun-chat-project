@@ -1,5 +1,6 @@
 @use '../../../vars/colors';
 @use '../../../vars/mix' as *;
+@use '../../../vars//breakpoints';
 
 header {
   width: 95vw;
@@ -21,10 +22,22 @@ header {
       &:hover {
         text-decoration: underline;
       }
+
+      @media (max-width: breakpoints.$breakpoint-tablet) {
+        font-size: 1em;
+      }
+
+      @media (max-width: breakpoints.$breakpoint-mobile) {
+        font-size: 0.8em;
+      }
     }
 
     h1 {
       flex-grow: 1;
+
+      @media (max-width: breakpoints.$breakpoint-mobile) {
+        font-size: 1em;
+      }
     }
 
     button {
@@ -35,6 +48,22 @@ header {
       &:hover {
         background-color: colors.$button-hover;
         border: colors.$hover-border;
+      }
+
+      @media (max-width: breakpoints.$breakpoint-mobile) {
+        @include button(colors.$button-hover, none, auto);
+        margin: 0;
+        font-size: 0.8em;
+
+        &:active {
+          border: none;
+          text-decoration: underline;
+        }
+      }
+
+      @media (max-width: breakpoints.$breakpoint-desktop) {
+        width: auto;
+        font-size: 0.8em;
       }
     }
   }
