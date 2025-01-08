@@ -26,11 +26,7 @@ export default class App {
     this.router = new Router(routes);
     this.websocket = new WebSocketClient('ws://localhost:4000');
     this.chatService = new ChatService(this.websocket);
-    this.loginView = new LoginView(
-      this.router,
-      this.websocket,
-      this.chatService,
-    );
+    this.loginView = new LoginView(this.router, this.chatService);
     this.chatView = new ChatView(this.chatService);
     this.aboutView = new AboutView(this.router);
   }
