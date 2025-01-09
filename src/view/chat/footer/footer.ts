@@ -2,7 +2,7 @@ import './footer.scss';
 import createHTMLElement from '../../../util/element-creator';
 import logoPic from '../../../assets/rsschool-logo.jpg';
 import gitHubMark from '../../../assets/gitHub-Mark.png';
-import * as Constants from '../../../constants';
+import { SRC_ALT } from '../../../constants';
 
 export default class Footer {
   LINK_TO_SCHOOL = 'https://wearecommunity.io/communities/the-rolling-scopes';
@@ -20,12 +20,12 @@ export default class Footer {
       this.getFooterLinks(
         this.LINK_TO_SCHOOL,
         logoPic as string,
-        Constants.SRC_ALT.RSS_LINK,
+        SRC_ALT.RSS_LINK,
       ),
       this.getFooterLinks(
         this.LINK_TO_GH_PROFILE,
         gitHubMark as string,
-        Constants.SRC_ALT.GH_LINK,
+        SRC_ALT.GH_LINK,
       ),
     );
     container.append(links);

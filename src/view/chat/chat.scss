@@ -89,9 +89,14 @@
       border-radius: 0 5px 0 0;
       background-image: colors.$background-image;
 
-      p {
+      .user-name {
         font-size: 1.2em;
         padding: 10px;
+      }
+
+      .user-status {
+        font-style: italic;
+        font-size: 0.8em;
       }
     }
 

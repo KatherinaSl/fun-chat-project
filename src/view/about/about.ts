@@ -7,9 +7,6 @@ import * as Constants from '../../constants';
 export default class AboutPageView {
   private router: Router;
 
-  APP_DISCRIPTION =
-    'The application is designed to demonstrate the assignment Fun Chat within the course RSSchool';
-
   constructor(router: Router) {
     this.router = router;
   }
@@ -20,7 +17,7 @@ export default class AboutPageView {
     const description = createHTMLElement('h2');
     description.textContent = Constants.APP_NAME;
     const p = createHTMLElement('p');
-    p.textContent = this.APP_DISCRIPTION;
+    p.textContent = Constants.APP_DISCRIPTION;
 
     const button = createHTMLElement('button');
     button.textContent = Constants.BUTTONS.BACK_BUTTON;

@@ -6,6 +6,8 @@ export default class ChatService {
 
   private handlers = new Map<string, (message: Message) => void>();
 
+  private contacts = new Map<string, User>();
+
   constructor(websocket: WebSocketClient) {
     this.websocket = websocket;
     this.setupMessageHandlers();
@@ -58,5 +60,19 @@ export default class ChatService {
       type,
       payload,
     };
+  }
+
+  public saveContacts(users?: User[]) {
+    users?.forEach((user) => {
+      this.contacts.set(user.login, user);
+    });
+  }
+
+  public updateContact(user: User) {
+    this.contacts.set(user.login, user);
+  }
+
+  public getContact(login: string): User | undefined {
+    return this.contacts.get(login);
   }
 }

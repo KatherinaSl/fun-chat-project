@@ -10,12 +10,6 @@ import ChatService from '../../services/chat-service';
 import * as Constants from '../../constants';
 
 export default class LoginView {
-  private WELCOME_PHRASE = 'LOGIN';
-
-  private NAME_PLACEHOLDER = 'Please, enter your name';
-
-  private PASSWORD_PLACEHOLDER = 'Please, enter your password';
-
   private NAME_REGEX = `[a-zA-Z]{1,}[a-zA-Z \\-']{1,9}`;
 
   private PASSWORD_REGEX = `[a-zA-Z0-9]{4,10}`;
@@ -38,7 +32,7 @@ export default class LoginView {
   public create(): Node {
     const main = createHTMLElement('main');
     const h2 = createHTMLElement('h1');
-    h2.textContent = this.WELCOME_PHRASE;
+    h2.textContent = Constants.LOGIN_PHRASE;
     const formBox = createHTMLElement('div', 'form-box');
     const formPic = createHTMLElement('div', 'login-img');
     const img = createHTMLElement('img') as HTMLImageElement;
@@ -51,7 +45,7 @@ export default class LoginView {
       .setId('username-input')
       .setName('username')
       .setPattern(this.NAME_REGEX)
-      .setPlaceholder(this.NAME_PLACEHOLDER)
+      .setPlaceholder(Constants.NAME_PLACEHOLDER)
       .setRequirements(this.getLoginFieldRequirement('name', 2))
       .setType('text')
       .setAutocomplete('username')
@@ -62,7 +56,7 @@ export default class LoginView {
       .setId('password-input')
       .setName('password')
       .setPattern(this.PASSWORD_REGEX)
-      .setPlaceholder(this.PASSWORD_PLACEHOLDER)
+      .setPlaceholder(Constants.PASSWORD_PLACEHOLDER)
       .setRequirements(this.getPasswordFieldRequirement('password', 4))
       .setType('password')
       .setAutocomplete('current-password')
