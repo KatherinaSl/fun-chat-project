@@ -1,11 +1,11 @@
-import { Message } from '../data/interfaces';
+import { SocketMessage } from '../data/interfaces';
 
 export default class WebSocketClient {
   private websocket: WebSocket | null;
 
   private url: string;
 
-  private onMessage: ((msg: Message) => void) | null;
+  private onMessage: ((msg: SocketMessage) => void) | null;
 
   constructor(url: string) {
     this.url = url;
@@ -21,7 +21,7 @@ export default class WebSocketClient {
     this.setupCallback();
   }
 
-  public send(message: Message) {
+  public send(message: SocketMessage) {
     this.openSocket();
     if (this.websocket?.readyState === WebSocket.OPEN) {
       const obj = JSON.stringify(message);
@@ -33,7 +33,7 @@ export default class WebSocketClient {
     this.websocket?.close();
   }
 
-  public setOnMessageCallback(callback: (message: Message) => void) {
+  public setOnMessageCallback(callback: (message: SocketMessage) => void) {
     this.onMessage = callback;
     if (this.websocket) {
       this.setupCallback();

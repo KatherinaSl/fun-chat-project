@@ -1,16 +1,16 @@
 import './header.scss';
-import createHTMLElement from '../../../util/element-creator';
+import createHTMLElement from '../../../util/create-element';
 import Pages from '../../../routing/pages';
 import Router from '../../../routing/router';
-import ChatService from '../../../services/chat-service';
+import UserService from '../../../services/user-service';
 import * as Constants from '../../../constants';
 
 export default class Header {
   private router: Router;
 
-  private chatService: ChatService;
+  private chatService: UserService;
 
-  constructor(router: Router, chatService: ChatService) {
+  constructor(router: Router, chatService: UserService) {
     this.router = router;
     this.chatService = chatService;
   }
