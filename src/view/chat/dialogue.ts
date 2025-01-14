@@ -1,13 +1,30 @@
-import { User } from '../../data/interfaces';
-import createHTMLElement from '../../util/element-creator';
-import './chat.scss';
+import { Message, User } from '../../data/interfaces';
+import createHTMLElement from '../../util/create-element';
+import './dialogue.scss';
 import * as Constants from '../../constants';
+import ChatMessageService from '../../services/chat-message-service';
+import HandlersRegistry from '../../services/handlers-registry';
+import getConvertedTime from '../../util/date-util';
 
 export default class DialogueView {
   private user?: User;
 
-  constructor(user?: User) {
+  private messageService: ChatMessageService;
+
+  constructor(
+    messageService: ChatMessageService,
+    registry: HandlersRegistry,
+    user?: User,
+  ) {
     this.user = user;
+    this.messageService = messageService;
+    registry.addMessageHandler('MSG_SEND', (msg) => {
+      this.showMessage(msg.payload?.message as Message);
+    });
+
+    registry.addMessageHandler('MSG_FROM_USER', (msg) => {
+      msg.payload?.messages?.forEach((message) => this.showMessage(message));
+    });
   }
 
   public create() {
@@ -17,27 +34,27 @@ export default class DialogueView {
     const userStatus = createHTMLElement('p', 'user-status');
     userInfo.append(userName, userStatus);
     const dialogue = createHTMLElement('div', 'main__chat__dialogue');
-    const selectUserElement = createHTMLElement('p');
+    const selectUserElement = createHTMLElement('p', 'welcome-message');
     dialogue.append(selectUserElement);
     const msgField = createHTMLElement('div', 'main__chat__msg');
-    const msgInput = createHTMLElement('input') as HTMLInputElement;
+    const msgInput = createHTMLElement(
+      'input',
+      'input-message',
+    ) as HTMLInputElement;
     msgInput.setAttribute('type', 'text');
     msgInput.setAttribute('placeholder', Constants.MSG_PLACEHOLDER);
+    msgInput.addEventListener('keypress', this.inputMessageHandler.bind(this));
     const sendButton = createHTMLElement('button') as HTMLButtonElement;
     sendButton.textContent = Constants.BUTTONS.SEND_BUTTON;
+    sendButton.addEventListener('click', this.inputMessageHandler.bind(this));
 
     if (this.user) {
-      // const status = document
-      //   .querySelector('.main__users li')?.getAttribute('status');
-      // console.log(status);
-      // userStatus.textContent =
-      //   status === 'true' ? Constants.USER_STATUS.ONLINE
-      //     : Constants.USER_STATUS.OFFLINE;
       userStatus.textContent = this.user.isLogined
         ? Constants.USER_STATUS.ONLINE
         : Constants.USER_STATUS.OFFLINE;
       userName.textContent = this.user.login;
       selectUserElement.textContent = Constants.START_DIALOGUE_MSG;
+      this.messageService.fetchMsgHistory(this.user);
     } else {
       selectUserElement.textContent = Constants.CHOOSE_USER_MSG;
       sendButton.disabled = true;
@@ -53,9 +70,55 @@ export default class DialogueView {
     const status = document
       .querySelector('.main__users li')
       ?.getAttribute('status');
-    document.querySelector('.user-status')!.textContent =
-      status === 'true'
-        ? Constants.USER_STATUS.ONLINE
-        : Constants.USER_STATUS.OFFLINE;
+    const userName = document.querySelector('.user-name');
+    if (userName?.textContent) {
+      document.querySelector('.user-status')!.textContent =
+        status === 'true'
+          ? Constants.USER_STATUS.ONLINE
+          : Constants.USER_STATUS.OFFLINE;
+    }
+  }
+
+  private inputMessageHandler(event: KeyboardEvent | MouseEvent) {
+    const recipient = document.querySelector('.user-name')!
+      .textContent as string;
+    const input = document.querySelector('.input-message') as HTMLInputElement;
+    if (input.value) {
+      if (
+        (event instanceof KeyboardEvent &&
+          (event as KeyboardEvent).key === 'Enter') ||
+        event instanceof MouseEvent
+      ) {
+        this.messageService.sendMsg({ to: recipient, text: input.value });
+        input.value = '';
+      }
+    }
+  }
+
+  private showMessage(message: Message) {
+    document.querySelector('.welcome-message')?.remove();
+    const messages = document.querySelector('.main__chat__dialogue');
+    const msgContainer = createHTMLElement('div', 'message');
+    msgContainer!.classList.add(
+      `${message.to === this.user?.login ? 'message_right' : 'message_left'}`,
+    );
+    const userInfo = createHTMLElement('p', 'message__user');
+    const msgUser = createHTMLElement('span');
+    msgUser.innerText = message.from as string;
+    const msgTime = createHTMLElement('span', 'message__time');
+
+    if (message.datetime) {
+      const time = getConvertedTime(message.datetime);
+      msgTime.textContent = time;
+    }
+
+    userInfo.append(msgUser, msgTime);
+    const msgText = createHTMLElement('p', 'message__text');
+    msgText.innerText = message.text as string;
+
+    msgContainer.append(userInfo, msgText);
+    messages?.append(msgContainer);
+
+    messages?.scrollTo(0, messages.scrollHeight);
   }
 }

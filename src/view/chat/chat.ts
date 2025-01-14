@@ -1,32 +1,44 @@
 import './chat.scss';
-import createHTMLElement from '../../util/element-creator';
-import ChatService from '../../services/chat-service';
-import { Message, User } from '../../data/interfaces';
+import createHTMLElement from '../../util/create-element';
+import UserService from '../../services/user-service';
+import { SocketMessage, User } from '../../data/interfaces';
 import { createOnlineIcon } from '../../util/create-svg';
 import DialogueView from './dialogue';
 import { SEARCH_PLACEHOLDER } from '../../constants';
+import ChatMessageService from '../../services/chat-message-service';
+import HandlersRegistry from '../../services/handlers-registry';
 
 export default class ChatPageView {
-  private chatService: ChatService;
+  private userService: UserService;
 
-  constructor(chatService: ChatService) {
-    this.chatService = chatService;
-    this.chatService.addMessageHandler('USER_ACTIVE', (msg) => {
+  private messageService: ChatMessageService;
+
+  private registry: HandlersRegistry;
+
+  constructor(
+    userService: UserService,
+    messageService: ChatMessageService,
+    registry: HandlersRegistry,
+  ) {
+    this.userService = userService;
+    this.messageService = messageService;
+    this.registry = registry;
+    this.registry.addMessageHandler('USER_ACTIVE', (msg) => {
       this.fillUsersList(msg);
-      this.chatService.saveContacts(msg.payload?.users);
+      this.userService.saveContacts(msg.payload?.users);
     });
-    this.chatService.addMessageHandler('USER_INACTIVE', (msg) => {
+    registry.addMessageHandler('USER_INACTIVE', (msg) => {
       this.fillUsersList(msg);
-      this.chatService.saveContacts(msg.payload?.users);
+      this.userService.saveContacts(msg.payload?.users);
     });
-    this.chatService.addMessageHandler('USER_EXTERNAL_LOGIN', (msg) => {
+    registry.addMessageHandler('USER_EXTERNAL_LOGIN', (msg) => {
       this.createOrUpdateUserRecord(msg.payload!.user!);
-      this.chatService.updateContact(msg.payload!.user!);
+      this.userService.updateContact(msg.payload!.user!);
       DialogueView.updateUserStatus();
     });
-    this.chatService.addMessageHandler('USER_EXTERNAL_LOGOUT', (msg) => {
+    registry.addMessageHandler('USER_EXTERNAL_LOGOUT', (msg) => {
       this.createOrUpdateUserRecord(msg.payload!.user!);
-      this.chatService.updateContact(msg.payload!.user!);
+      this.userService.updateContact(msg.payload!.user!);
       DialogueView.updateUserStatus();
     });
   }
@@ -35,7 +47,7 @@ export default class ChatPageView {
     const main = createHTMLElement('main', 'main__container');
     const userList = createHTMLElement('div', 'main__users');
     const form = createHTMLElement('form');
-    const input = createHTMLElement('input', 'search-form');
+    const input = createHTMLElement('input', 'search-input');
     input.setAttribute('placeholder', SEARCH_PLACEHOLDER);
     input.setAttribute('type', 'text');
     input.addEventListener('keyup', this.searchUserHandler.bind(this));
@@ -43,15 +55,16 @@ export default class ChatPageView {
     const ul = createHTMLElement('ul');
     userList.append(form, ul);
 
-    const dialogueView = new DialogueView();
+    const dialogueView = new DialogueView(this.messageService, this.registry);
+    sessionStorage.setItem('dialogueView', JSON.stringify(dialogueView));
 
-    this.chatService.getAllLoginUsers();
-    this.chatService.getAllLogoutUsers();
+    this.userService.requestAllLoginUsers();
+    this.userService.requestAllLogoutUsers();
     main.append(userList, dialogueView.create());
     return main;
   }
 
-  public fillUsersList(msg: Message) {
+  public fillUsersList(msg: SocketMessage) {
     const userLogin = sessionStorage.getItem('user');
     const users = msg.payload?.users!.filter(
       (user) => user.login !== userLogin,
@@ -91,9 +104,21 @@ export default class ChatPageView {
   }
 
   private showUserInfoHandler(event: Event) {
-    const login = (event.target as HTMLUListElement).textContent as string;
-    const contact = this.chatService.getContact(login);
-    const dialogue = new DialogueView(contact);
+    document
+      .querySelectorAll('.main__users li')
+      .forEach((li) => li.classList.remove('selected_user'));
+
+    const li = (event.target as HTMLUListElement).closest('li');
+    li?.classList.add('selected_user');
+
+    const login = li?.textContent as string;
+    const contact = this.userService.getContact(login);
+    const dialogue = new DialogueView(
+      this.messageService,
+      this.registry,
+      contact,
+    );
+    sessionStorage.setItem('dialogue', JSON.stringify(dialogue));
     document.querySelector('.main__chat')?.remove();
     document.querySelector('.main__container')?.append(dialogue.create());
   }

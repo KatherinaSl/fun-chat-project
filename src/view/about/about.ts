@@ -1,5 +1,5 @@
 import './about.scss';
-import createHTMLElement from '../../util/element-creator';
+import createHTMLElement from '../../util/create-element';
 import Router from '../../routing/router';
 import Pages from '../../routing/pages';
 import * as Constants from '../../constants';

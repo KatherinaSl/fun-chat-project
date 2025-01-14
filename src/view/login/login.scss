@@ -140,19 +140,3 @@ main {
     }
   }
 }
-
-// @media (max-width: breakpoints.$breakpoint-desktop) {
-//   .login-img {
-//     display: none;
-//   }
-
-//   .form-box {
-//     @include center-display();
-//     width: min(500px, 100%);
-//     margin: 0;
-
-//     h1 {
-//       font-size: 2em;
-//     }
-//   }
-// }

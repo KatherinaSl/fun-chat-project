@@ -1,13 +1,14 @@
 import './login.scss';
 import './error.scss';
-import createHTMLElement from '../../util/element-creator';
+import createHTMLElement from '../../util/create-element';
 import loginPic from '../../assets/11155.jpg';
 import FormInputBuilder from '../../util/build-input';
 import { createSvgLockIcon, createSvgPersonIcon } from '../../util/create-svg';
 import Router from '../../routing/router';
 import Pages from '../../routing/pages';
-import ChatService from '../../services/chat-service';
+import UserService from '../../services/user-service';
 import * as Constants from '../../constants';
+import HandlersRegistry from '../../services/handlers-registry';
 
 export default class LoginView {
   private NAME_REGEX = `[a-zA-Z]{1,}[a-zA-Z \\-']{1,9}`;
@@ -16,15 +17,19 @@ export default class LoginView {
 
   private router: Router;
 
-  private chatService: ChatService;
+  private userService: UserService;
 
-  constructor(router: Router, chatService: ChatService) {
+  constructor(
+    router: Router,
+    userService: UserService,
+    registry: HandlersRegistry,
+  ) {
     this.router = router;
-    this.chatService = chatService;
-    this.chatService.addMessageHandler('ERROR', (msg) =>
+    this.userService = userService;
+    registry.addMessageHandler('ERROR', (msg) =>
       this.createErrorMessage(msg.payload!.error!),
     );
-    this.chatService.addMessageHandler('USER_LOGIN', () => {
+    registry.addMessageHandler('USER_LOGIN', () => {
       this.router.navigate(`${Pages.CHAT}`);
     });
   }
@@ -129,7 +134,7 @@ export default class LoginView {
     const userPassword = (
       document.querySelector('#password-input') as HTMLInputElement
     )?.value;
-    this.chatService.login({ login: userLogin, password: userPassword });
+    this.userService.login({ login: userLogin, password: userPassword });
     this.setUserInfo(userLogin, userPassword);
   }
 

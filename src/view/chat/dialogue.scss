@@ -1,0 +1,125 @@
+@use '../../vars/colors';
+@use '../../vars/mix' as *;
+@use '../../vars/breakpoints';
+
+.main__chat {
+  @include flex(normal, space-between);
+  height: 100%;
+  flex-direction: column;
+  width: 90vw;
+  box-sizing: border-box;
+
+  @media (max-width: breakpoints.$breakpoint-tablet) {
+    width: 100vw;
+  }
+
+  .main__chat__user {
+    @include flex(center, flex-start);
+    box-sizing: border-box;
+    height: 10%;
+    border-radius: 0 5px 0 0;
+    background-image: colors.$background-image-dialogue-header;
+    .user-name {
+      font-size: 1.2em;
+      padding: 10px;
+    }
+
+    .user-status {
+      font-style: italic;
+      font-size: 0.8em;
+    }
+  }
+
+  .message.message_right {
+    align-self: flex-end;
+    border-radius: 15px 0 15px 15px;
+  }
+
+  .message.message_left {
+    align-self: flex-start;
+    border-radius: 0 15px 15px 15px;
+  }
+
+  .main__chat__dialogue {
+    @include flex();
+    flex-direction: column;
+    box-sizing: border-box;
+    height: 65vh;
+
+    .welcome-message {
+      font-size: 1.5em;
+
+      @media (max-width: breakpoints.$breakpoint-mobile) {
+        font-size: 1em;
+      }
+    }
+
+    .message {
+      background: colors.$button-color;
+      display: flex;
+      margin: 5px;
+      flex-direction: column;
+      padding: 10px;
+      gap: 10px;
+
+      .message__user {
+        border-bottom: 1px solid black;
+        display: flex;
+        font-size: 1em;
+
+        .message__time {
+          margin: 0 15px;
+        }
+      }
+    }
+
+    &:has(.message) {
+      overflow-y: scroll;
+      justify-content: normal;
+
+      .message:first-child {
+        margin-top: auto;
+      }
+    }
+  }
+
+  .main__chat__msg {
+    @include flex(center, space-between);
+    box-sizing: border-box;
+    border: none {
+      top: colors.$border;
+    }
+
+    input[type='text'] {
+      width: 90%;
+      margin: 5px;
+      padding: 5px;
+      font-size: 1.2em;
+
+      &:focus::placeholder {
+        color: transparent;
+      }
+
+      @media (max-width: breakpoints.$breakpoint-mobile) {
+        font-size: 1em;
+      }
+    }
+
+    button {
+      @include button(colors.$button-color, none, 5em);
+      text-transform: none;
+      border-radius: 5px;
+      margin: 0 20px;
+
+      &:hover {
+        background-color: colors.$button-hover;
+        border: colors.$hover-border;
+
+        &:disabled {
+          background-color: colors.$button-color;
+          border: none;
+        }
+      }
+    }
+  }
+}
