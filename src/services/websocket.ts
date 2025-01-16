@@ -5,6 +5,8 @@ export default class WebSocketClient {
 
   private url: string;
 
+  private messageQueue: string[] = [];
+
   private onMessage: ((msg: SocketMessage) => void) | null;
 
   constructor(url: string) {
@@ -22,10 +24,12 @@ export default class WebSocketClient {
   }
 
   public send(message: SocketMessage) {
+    const obj = JSON.stringify(message);
     this.openSocket();
     if (this.websocket?.readyState === WebSocket.OPEN) {
-      const obj = JSON.stringify(message);
       this.websocket?.send(obj);
+    } else {
+      this.messageQueue.push(obj);
     }
   }
 
@@ -46,6 +50,36 @@ export default class WebSocketClient {
         const dataString = msgEvent.data;
         const dataObj = JSON.parse(dataString);
         this.onMessage!(dataObj);
+      };
+    }
+    if (this.websocket) {
+      // todo !!!!!!!!!!!
+      this.websocket.onopen = () => {
+        if (sessionStorage.length) {
+          const login = sessionStorage.getItem('user');
+          const pass = sessionStorage.getItem('password');
+
+          const obj = this.messageQueue[0];
+          if (!obj.includes('USER_LOGIN')) {
+            const msg = `{
+              "id":"123",
+              "type": "USER_LOGIN",
+              "payload": {
+                "user": {
+                  "login": "${login}",
+                  "password": "${pass}"
+                }
+              }
+            }`;
+            this.websocket?.send(msg);
+          }
+        }
+
+        while (this.messageQueue.length) {
+          const obj = this.messageQueue.shift()!;
+
+          this.websocket?.send(obj);
+        }
       };
     }
   }

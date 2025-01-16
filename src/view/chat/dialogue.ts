@@ -19,7 +19,12 @@ export default class DialogueView {
     this.user = user;
     this.messageService = messageService;
     registry.addMessageHandler('MSG_SEND', (msg) => {
-      this.showMessage(msg.payload?.message as Message);
+      if (
+        msg.payload?.message?.from === this.user?.login ||
+        msg.payload?.message?.from === sessionStorage.getItem('user')
+      ) {
+        this.showMessage(msg.payload?.message as Message);
+      }
     });
 
     registry.addMessageHandler('MSG_FROM_USER', (msg) => {

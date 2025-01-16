@@ -56,7 +56,6 @@ export default class ChatPageView {
     userList.append(form, ul);
 
     const dialogueView = new DialogueView(this.messageService, this.registry);
-    sessionStorage.setItem('dialogueView', JSON.stringify(dialogueView));
 
     this.userService.requestAllLoginUsers();
     this.userService.requestAllLogoutUsers();
@@ -64,7 +63,7 @@ export default class ChatPageView {
     return main;
   }
 
-  public fillUsersList(msg: SocketMessage) {
+  private fillUsersList(msg: SocketMessage) {
     const userLogin = sessionStorage.getItem('user');
     const users = msg.payload?.users!.filter(
       (user) => user.login !== userLogin,
@@ -118,7 +117,6 @@ export default class ChatPageView {
       this.registry,
       contact,
     );
-    sessionStorage.setItem('dialogue', JSON.stringify(dialogue));
     document.querySelector('.main__chat')?.remove();
     document.querySelector('.main__container')?.append(dialogue.create());
   }
