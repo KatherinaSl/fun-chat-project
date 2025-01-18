@@ -28,6 +28,11 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
+    - name: set server address
+      run: |
+        touch .env
+        echo SERVER=${{ secrets.SERVER }} >> .env
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v4
       with:
