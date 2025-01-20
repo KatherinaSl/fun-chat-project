@@ -6,6 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
 const EslintPlugin = require('eslint-webpack-plugin');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
   mode: 'development',
@@ -16,6 +17,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
   },
   plugins: [
+    new Dotenv(),
     new HtmlWebpackPlugin({
       template: path.resolve(__dirname, 'src/index.html'),
       filename: 'index.html',

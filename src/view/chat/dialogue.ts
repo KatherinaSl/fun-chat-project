@@ -1,15 +1,19 @@
-import { Message, User } from '../../data/interfaces';
+import { Message, SocketMessage, User } from '../../data/interfaces';
 import createHTMLElement from '../../util/create-element';
 import './dialogue.scss';
+import './chat.scss';
 import * as Constants from '../../constants';
 import ChatMessageService from '../../services/chat-message-service';
 import HandlersRegistry from '../../services/handlers-registry';
 import getConvertedTime from '../../util/date-util';
+import { createDeliveredIcon } from '../../util/create-svg';
 
 export default class DialogueView {
   private user?: User;
 
   private messageService: ChatMessageService;
+
+  private count: number = 0;
 
   constructor(
     messageService: ChatMessageService,
@@ -24,11 +28,24 @@ export default class DialogueView {
         msg.payload?.message?.from === sessionStorage.getItem('user')
       ) {
         this.showMessage(msg.payload?.message as Message);
+      } else if (msg.payload?.message?.from !== this.user?.login) {
+        //  todo redo
+        this.createMessageCounter(msg);
       }
     });
 
     registry.addMessageHandler('MSG_FROM_USER', (msg) => {
-      msg.payload?.messages?.forEach((message) => this.showMessage(message));
+      console.log(msg);
+      msg.payload?.messages?.forEach((message) => {
+        this.showMessage(message);
+        if (message.status?.isDelivered) {
+          console.log(message.text);
+        }
+      });
+    });
+
+    registry.addMessageHandler('MSG_DELIVER', (message) => {
+      console.log(message.payload?.message?.status?.isDelivered);
     });
   }
 
@@ -118,12 +135,30 @@ export default class DialogueView {
     }
 
     userInfo.append(msgUser, msgTime);
-    const msgText = createHTMLElement('p', 'message__text');
+    const msgText = createHTMLElement('p');
     msgText.innerText = message.text as string;
 
-    msgContainer.append(userInfo, msgText);
+    const msgStatus = createHTMLElement('div', 'message__status');
+
+    if (message.status?.isDelivered) {
+      msgStatus.innerHTML += createDeliveredIcon();
+    }
+
+    msgContainer.append(userInfo, msgText, msgStatus);
     messages?.append(msgContainer);
 
     messages?.scrollTo(0, messages.scrollHeight);
+  }
+
+  private createMessageCounter(msg: SocketMessage) {
+    document.querySelectorAll('.main__users li').forEach((liItem) => {
+      if (liItem.getAttribute('login') === msg.payload?.message?.from) {
+        liItem.querySelector('.message-counter')?.remove();
+        const span = createHTMLElement('span', 'message-counter');
+        this.count += 1;
+        span.textContent = this.count.toString();
+        liItem?.append(span);
+      }
+    });
   }
 }

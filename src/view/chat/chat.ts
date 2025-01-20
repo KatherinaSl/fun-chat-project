@@ -79,9 +79,11 @@ export default class ChatPageView {
     let li = document.querySelector(`.main__users li[login="${login}"]`);
     if (!li) {
       li = createHTMLElement('li');
+      const span = createHTMLElement('span');
       li.setAttribute('login', login);
       li.addEventListener('click', this.showUserInfoHandler.bind(this));
-      li.textContent = login;
+      span.textContent = login;
+      li.append(span);
       ul.append(li);
     }
     li.setAttribute('status', `${isLogined}`);
@@ -109,8 +111,8 @@ export default class ChatPageView {
 
     const li = (event.target as HTMLUListElement).closest('li');
     li?.classList.add('selected_user');
-
-    const login = li?.textContent as string;
+    li?.querySelector('.message-counter')?.remove();
+    const login = li?.getAttribute('login') as string;
     const contact = this.userService.getContact(login);
     const dialogue = new DialogueView(
       this.messageService,

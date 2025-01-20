@@ -78,7 +78,7 @@ main {
       .submit,
       button {
         @include button(colors.$border-color, colors.$login-input-border);
-        margin: 0;
+        margin: 10px;
 
         &:hover {
           background-color: colors.$button-hover;
