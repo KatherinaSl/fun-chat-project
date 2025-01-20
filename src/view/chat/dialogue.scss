@@ -20,7 +20,7 @@
     border-radius: 0 5px 0 0;
     background-image: colors.$background-image-dialogue-header;
     .user-name {
-      font-size: 1.2em;
+      font-size: 1.5em;
       padding: 10px;
     }
 
@@ -60,15 +60,25 @@
       margin: 5px;
       flex-direction: column;
       padding: 10px;
-      gap: 10px;
+      // gap: 10px;
 
       .message__user {
         border-bottom: 1px solid black;
         display: flex;
         font-size: 1em;
+        margin-bottom: 10px;
 
         .message__time {
           margin: 0 15px;
+        }
+      }
+
+      .message__status {
+        display: flex;
+        justify-content: flex-end;
+
+        svg {
+          width: 1.2em;
         }
       }
     }

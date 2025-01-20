@@ -28,7 +28,9 @@ export default class App {
   constructor() {
     const routes = this.createRoutes();
     this.router = new Router(routes);
-    this.websocket = new WebSocketClient('ws://localhost:4000');
+    this.websocket = new WebSocketClient(
+      process.env.SERVER || 'ws://localhost:4000',
+    );
     this.userService = new UserService(this.websocket);
     this.messageService = new ChatMessageService(this.websocket);
     const registry = new HandlersRegistry(this.websocket);
