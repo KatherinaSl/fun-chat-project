@@ -5,6 +5,7 @@ import DialogueView from './dialogue';
 import ChatMessageService from '../../services/chat-message-service';
 import ContactsView from './contacts';
 import HandlersRegistry from '../../services/handlers-registry';
+import MessageStorageService from '../../services/message-storage-service';
 
 export default class ChatPageView {
   private userService: UserService;
@@ -15,6 +16,8 @@ export default class ChatPageView {
 
   private contactsView: ContactsView;
 
+  private messageStorage: MessageStorageService;
+
   constructor(
     userService: UserService,
     messageService: ChatMessageService,
@@ -22,11 +25,16 @@ export default class ChatPageView {
   ) {
     this.userService = userService;
     this.messageService = messageService;
-    this.dialogueView = new DialogueView(this.messageService, registry);
+    this.messageStorage = new MessageStorageService(registry);
+    this.dialogueView = new DialogueView(
+      this.messageService,
+      this.messageStorage,
+    );
     this.contactsView = new ContactsView(
       this.userService,
       registry,
       this.dialogueView,
+      this.messageService,
     );
   }
 

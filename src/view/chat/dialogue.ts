@@ -1,47 +1,33 @@
-import { Message, SocketMessage, User } from '../../data/interfaces';
+import { Message, User } from '../../data/interfaces';
 import createHTMLElement from '../../util/create-element';
 import './dialogue.scss';
 import './chat.scss';
 import * as Constants from '../../constants';
 import ChatMessageService from '../../services/chat-message-service';
-import HandlersRegistry from '../../services/handlers-registry';
 import getConvertedTime from '../../util/date-util';
 import { createDeliveredIcon } from '../../util/create-svg';
+import MessageStorageService from '../../services/message-storage-service';
 
 export default class DialogueView {
   private user?: User;
 
   private messageService: ChatMessageService;
 
-  private count: number = 0;
-
-  private registry: HandlersRegistry;
+  private messageStorage: MessageStorageService;
 
   constructor(
     messageService: ChatMessageService,
-    registry: HandlersRegistry,
+    messageStorage: MessageStorageService,
     user?: User,
   ) {
     this.user = user;
     this.messageService = messageService;
-    this.registry = registry;
-    this.registry.addMessageHandler('MSG_SEND', (msg) => {
-      if (
-        msg.payload?.message?.from === this.user?.login ||
-        msg.payload?.message?.from === sessionStorage.getItem('user')
-      ) {
-        this.showMessage(msg.payload?.message as Message);
-      } else if (msg.payload?.message?.from !== this.user?.login) {
-        //  todo redo
-        this.createMessageCounter(msg);
-      }
-    });
+    this.messageStorage = messageStorage;
 
-    this.registry.addMessageHandler('MSG_FROM_USER', (msg) => {
-      // console.log(msg);
-      msg.payload?.messages?.forEach((message) => {
+    this.messageStorage.setNewMessageListener((message) => {
+      if (this.user) {
         this.showMessage(message);
-      });
+      }
     });
   }
 
@@ -96,7 +82,10 @@ export default class DialogueView {
     (document.querySelector('.input-message') as HTMLInputElement).disabled =
       false;
 
-    this.messageService.fetchMsgHistory(this.user);
+    const messageHistory = this.messageStorage.getMessageHistory(this.user!);
+    messageHistory?.forEach((message) => {
+      this.showMessage(message);
+    });
   }
 
   private createWelcomingMessage() {
@@ -125,8 +114,6 @@ export default class DialogueView {
     document.querySelector('.welcome-message')?.remove();
     const messages = document.querySelector('.main__chat__dialogue');
     const msgContainer = createHTMLElement('div', 'message');
-    console.log(`message to ${message.to}`);
-    console.log(`user login ${this.user?.login}`);
     msgContainer!.classList.add(
       `${message.to === this.user?.login ? 'message_right' : 'message_left'}`,
     );
@@ -154,17 +141,5 @@ export default class DialogueView {
     messages?.append(msgContainer);
 
     messages?.scrollTo(0, messages.scrollHeight);
-  }
-
-  private createMessageCounter(msg: SocketMessage) {
-    document.querySelectorAll('.main__users li').forEach((liItem) => {
-      if (liItem.getAttribute('login') === msg.payload?.message?.from) {
-        liItem.querySelector('.message-counter')?.remove();
-        const span = createHTMLElement('span', 'message-counter');
-        this.count += 1;
-        span.textContent = this.count.toString();
-        liItem?.append(span);
-      }
-    });
   }
 }

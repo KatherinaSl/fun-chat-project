@@ -6,6 +6,7 @@ import { SocketMessage, User } from '../../data/interfaces';
 import { createOnlineIcon } from '../../util/create-svg';
 import HandlersRegistry from '../../services/handlers-registry';
 import DialogueView from './dialogue';
+import ChatMessageService from '../../services/chat-message-service';
 
 export default class ContactsView {
   private userService: UserService;
@@ -16,16 +17,26 @@ export default class ContactsView {
     userService: UserService,
     registry: HandlersRegistry,
     dialogueView: DialogueView,
+    messageService: ChatMessageService,
   ) {
     this.userService = userService;
     this.dialogueView = dialogueView;
     registry.addMessageHandler('USER_ACTIVE', (msg) => {
       this.fillUsersList(msg);
       this.userService.saveContacts(msg.payload?.users);
+      const currentUser = sessionStorage.getItem('user');
+      msg.payload?.users
+        ?.filter((user) => currentUser !== user.login)
+        .forEach((user) => {
+          messageService.fetchMsgHistory(user);
+        });
     });
     registry.addMessageHandler('USER_INACTIVE', (msg) => {
       this.fillUsersList(msg);
       this.userService.saveContacts(msg.payload?.users);
+      msg.payload?.users?.forEach((user) => {
+        messageService.fetchMsgHistory(user);
+      });
     });
     registry.addMessageHandler('USER_EXTERNAL_LOGIN', (msg) => {
       this.createOrUpdateUserRecord(msg.payload!.user!);
