@@ -15,6 +15,8 @@ export default class DialogueView {
 
   private count: number = 0;
 
+  private registry: HandlersRegistry;
+
   constructor(
     messageService: ChatMessageService,
     registry: HandlersRegistry,
@@ -22,7 +24,8 @@ export default class DialogueView {
   ) {
     this.user = user;
     this.messageService = messageService;
-    registry.addMessageHandler('MSG_SEND', (msg) => {
+    this.registry = registry;
+    this.registry.addMessageHandler('MSG_SEND', (msg) => {
       if (
         msg.payload?.message?.from === this.user?.login ||
         msg.payload?.message?.from === sessionStorage.getItem('user')
@@ -34,18 +37,11 @@ export default class DialogueView {
       }
     });
 
-    registry.addMessageHandler('MSG_FROM_USER', (msg) => {
-      console.log(msg);
+    this.registry.addMessageHandler('MSG_FROM_USER', (msg) => {
+      // console.log(msg);
       msg.payload?.messages?.forEach((message) => {
         this.showMessage(message);
-        if (message.status?.isDelivered) {
-          console.log(message.text);
-        }
       });
-    });
-
-    registry.addMessageHandler('MSG_DELIVER', (message) => {
-      console.log(message.payload?.message?.status?.isDelivered);
     });
   }
 
@@ -57,6 +53,7 @@ export default class DialogueView {
     userInfo.append(userName, userStatus);
     const dialogue = createHTMLElement('div', 'main__chat__dialogue');
     const selectUserElement = createHTMLElement('p', 'welcome-message');
+    selectUserElement.textContent = Constants.CHOOSE_USER_MSG;
     dialogue.append(selectUserElement);
     const msgField = createHTMLElement('div', 'main__chat__msg');
     const msgInput = createHTMLElement(
@@ -69,36 +66,43 @@ export default class DialogueView {
     const sendButton = createHTMLElement('button') as HTMLButtonElement;
     sendButton.textContent = Constants.BUTTONS.SEND_BUTTON;
     sendButton.addEventListener('click', this.inputMessageHandler.bind(this));
-
-    if (this.user) {
-      userStatus.textContent = this.user.isLogined
-        ? Constants.USER_STATUS.ONLINE
-        : Constants.USER_STATUS.OFFLINE;
-      userName.textContent = this.user.login;
-      selectUserElement.textContent = Constants.START_DIALOGUE_MSG;
-      this.messageService.fetchMsgHistory(this.user);
-    } else {
-      selectUserElement.textContent = Constants.CHOOSE_USER_MSG;
-      sendButton.disabled = true;
-      msgInput.disabled = true;
-    }
+    sendButton.disabled = true;
+    msgInput.disabled = true;
 
     msgField.append(msgInput, sendButton);
     messageField.append(userInfo, dialogue, msgField);
     return messageField;
   }
 
-  public static updateUserStatus() {
-    const status = document
-      .querySelector('.main__users li')
-      ?.getAttribute('status');
+  public setContact(user: User) {
+    this.user = user;
+    const userStatus = document.querySelector('.user-status');
     const userName = document.querySelector('.user-name');
-    if (userName?.textContent) {
-      document.querySelector('.user-status')!.textContent =
-        status === 'true'
-          ? Constants.USER_STATUS.ONLINE
-          : Constants.USER_STATUS.OFFLINE;
+    document
+      .querySelectorAll('.message')
+      .forEach((message) => message.remove());
+    userStatus!.textContent = this.user.isLogined
+      ? Constants.USER_STATUS.ONLINE
+      : Constants.USER_STATUS.OFFLINE;
+    userName!.textContent = this.user.login;
+    if (!document.querySelector('.welcome-message')) {
+      this.createWelcomingMessage();
     }
+
+    (
+      document.querySelector('.main__chat__msg button') as HTMLButtonElement
+    ).disabled = false;
+
+    (document.querySelector('.input-message') as HTMLInputElement).disabled =
+      false;
+
+    this.messageService.fetchMsgHistory(this.user);
+  }
+
+  private createWelcomingMessage() {
+    const selectUserElement = createHTMLElement('p', 'welcome-message');
+    selectUserElement.textContent = Constants.START_DIALOGUE_MSG;
+    document.querySelector('.main__chat__dialogue')?.append(selectUserElement);
   }
 
   private inputMessageHandler(event: KeyboardEvent | MouseEvent) {
@@ -121,6 +125,8 @@ export default class DialogueView {
     document.querySelector('.welcome-message')?.remove();
     const messages = document.querySelector('.main__chat__dialogue');
     const msgContainer = createHTMLElement('div', 'message');
+    console.log(`message to ${message.to}`);
+    console.log(`user login ${this.user?.login}`);
     msgContainer!.classList.add(
       `${message.to === this.user?.login ? 'message_right' : 'message_left'}`,
     );
