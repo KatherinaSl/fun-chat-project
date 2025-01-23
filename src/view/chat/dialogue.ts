@@ -29,6 +29,15 @@ export default class DialogueView {
         this.showMessage(message);
       }
     });
+
+    this.messageStorage.setDeliveredMessageListener((message) => {
+      const deliveredMsgStatus = document.querySelector(
+        `#${message.id} .message__status`,
+      );
+      if (deliveredMsgStatus) {
+        deliveredMsgStatus.innerHTML += createDeliveredIcon();
+      }
+    });
   }
 
   public create() {
@@ -114,6 +123,7 @@ export default class DialogueView {
     document.querySelector('.welcome-message')?.remove();
     const messages = document.querySelector('.main__chat__dialogue');
     const msgContainer = createHTMLElement('div', 'message');
+    msgContainer.id = message.id!;
     msgContainer!.classList.add(
       `${message.to === this.user?.login ? 'message_right' : 'message_left'}`,
     );

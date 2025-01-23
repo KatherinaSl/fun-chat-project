@@ -6,6 +6,8 @@ export default class MessageStorageService {
 
   private newMessageListener?: (message: Message) => void;
 
+  private deliveredMessageListener?: (message: Message) => void;
+
   constructor(registry: HandlersRegistry) {
     registry.addMessageHandler('MSG_SEND', (msg) => {
       const incomingMsg = msg.payload?.message;
@@ -35,6 +37,21 @@ export default class MessageStorageService {
         this.storage.set(msgHistory[0].from!, msgHistory);
       }
     });
+
+    registry.addMessageHandler('MSG_DELIVER', (msg) => {
+      const msgId = msg.payload?.message?.id;
+      const deliveredMsg = Array.from(this.storage.values())
+        .flat()
+        .filter((message) => message.id === msgId)
+        .at(0);
+      if (deliveredMsg && deliveredMsg.status) {
+        deliveredMsg.status.isDelivered = true;
+
+        if (this.deliveredMessageListener) {
+          this.deliveredMessageListener(deliveredMsg);
+        }
+      }
+    });
   }
 
   private storeMessageHistory(incomingMsg: Message, sender: string) {
@@ -53,5 +70,9 @@ export default class MessageStorageService {
 
   public setNewMessageListener(callback: (message: Message) => void) {
     this.newMessageListener = callback;
+  }
+
+  public setDeliveredMessageListener(callback: (message: Message) => void) {
+    this.deliveredMessageListener = callback;
   }
 }

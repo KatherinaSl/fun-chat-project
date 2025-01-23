@@ -12,11 +12,6 @@ export default class ChatMessageService extends SocketService {
     this.websocket.send(socketMsg);
   }
 
-  // public changeReadStatus(message: Message) {
-  //   const socketMsg = this.createSocketMessage('MSG_READ', { message });
-  //   this.websocket.send(socketMsg);
-  // }
-
   public getRandomMessageId() {
     return window.self.crypto.randomUUID();
   }
