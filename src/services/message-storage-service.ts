@@ -8,6 +8,8 @@ export default class MessageStorageService {
 
   private deliveredMessageListener?: (message: Message) => void;
 
+  private readMessageListener?: (message: Message) => void;
+
   constructor(registry: HandlersRegistry) {
     registry.addMessageHandler('MSG_SEND', (msg) => {
       const incomingMsg = msg.payload?.message;
@@ -52,6 +54,21 @@ export default class MessageStorageService {
         }
       }
     });
+
+    registry.addMessageHandler('MSG_READ', (msg) => {
+      const msgId = msg.payload?.message?.id;
+      const readMsg = Array.from(this.storage.values())
+        .flat()
+        .filter((message) => message.id === msgId)
+        .at(0);
+      if (readMsg && readMsg.status) {
+        readMsg.status.isReaded = true;
+
+        if (this.readMessageListener) {
+          this.readMessageListener(readMsg);
+        }
+      }
+    });
   }
 
   private storeMessageHistory(incomingMsg: Message, sender: string) {
@@ -74,5 +91,9 @@ export default class MessageStorageService {
 
   public setDeliveredMessageListener(callback: (message: Message) => void) {
     this.deliveredMessageListener = callback;
+  }
+
+  public setReadMessageListener(callback: (message: Message) => void) {
+    this.readMessageListener = callback;
   }
 }
