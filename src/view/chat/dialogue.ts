@@ -5,7 +5,7 @@ import './chat.scss';
 import * as Constants from '../../constants';
 import ChatMessageService from '../../services/chat-message-service';
 import getConvertedTime from '../../util/date-util';
-import { createDeliveredIcon } from '../../util/create-svg';
+import { createDeliveredIcon, createReadIcon } from '../../util/create-svg';
 import MessageStorageService from '../../services/message-storage-service';
 
 export default class DialogueView {
@@ -27,15 +27,30 @@ export default class DialogueView {
     this.messageStorage.setNewMessageListener((message) => {
       if (this.user) {
         this.showMessage(message);
+
+        if (!message.status?.isReaded && message.from === this.user?.login) {
+          this.messageService.setReadStatus(message.id!);
+          this.messageStorage.resetUnreadMessageCounter(this.user.login);
+        }
       }
     });
 
     this.messageStorage.setDeliveredMessageListener((message) => {
       const deliveredMsgStatus = document.querySelector(
-        `#${message.id} .message__status`,
+        `#msg_${message.id} .message__status`,
       );
       if (deliveredMsgStatus) {
-        deliveredMsgStatus.innerHTML += createDeliveredIcon();
+        deliveredMsgStatus.innerHTML = createDeliveredIcon();
+      }
+    });
+
+    this.messageStorage.setReadMessageListener((message) => {
+      const readMsgStatus = document.querySelector(
+        `#msg_${message.id}.message_right .message__status`,
+      );
+
+      if (readMsgStatus) {
+        readMsgStatus.innerHTML = createReadIcon();
       }
     });
   }
@@ -94,7 +109,11 @@ export default class DialogueView {
     const messageHistory = this.messageStorage.getMessageHistory(this.user!);
     messageHistory?.forEach((message) => {
       this.showMessage(message);
+      if (!message.status?.isReaded && message.from === this.user?.login) {
+        this.messageService.setReadStatus(message.id!);
+      }
     });
+    this.messageStorage.resetUnreadMessageCounter(this.user.login);
   }
 
   private createWelcomingMessage() {
@@ -123,7 +142,7 @@ export default class DialogueView {
     document.querySelector('.welcome-message')?.remove();
     const messages = document.querySelector('.main__chat__dialogue');
     const msgContainer = createHTMLElement('div', 'message');
-    msgContainer.id = message.id!;
+    msgContainer.id = `msg_${message.id!}`;
     msgContainer!.classList.add(
       `${message.to === this.user?.login ? 'message_right' : 'message_left'}`,
     );
@@ -143,8 +162,12 @@ export default class DialogueView {
 
     const msgStatus = createHTMLElement('div', 'message__status');
 
-    if (message.status?.isDelivered) {
-      msgStatus.innerHTML += createDeliveredIcon();
+    if (message.status?.isDelivered && message.to === this.user?.login) {
+      msgStatus.innerHTML = createDeliveredIcon();
+    }
+
+    if (message.status?.isReaded && message.to === this.user?.login) {
+      msgStatus.innerHTML = createReadIcon();
     }
 
     msgContainer.append(userInfo, msgText, msgStatus);

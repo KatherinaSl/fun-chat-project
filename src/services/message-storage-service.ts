@@ -4,18 +4,42 @@ import HandlersRegistry from './handlers-registry';
 export default class MessageStorageService {
   private storage = new Map<string, Message[]>();
 
+  private unreadMessagesMap = new Map<string, number>();
+
   private newMessageListener?: (message: Message) => void;
 
   private deliveredMessageListener?: (message: Message) => void;
+
+  private readMessageListener?: (message: Message) => void;
+
+  private unreadMessageCounterListener?: (
+    contact: string,
+    counter: number,
+  ) => void;
 
   constructor(registry: HandlersRegistry) {
     registry.addMessageHandler('MSG_SEND', (msg) => {
       const incomingMsg = msg.payload?.message;
       const currentUser = sessionStorage.getItem('user');
-      if (currentUser === incomingMsg?.from) {
-        this.storeMessageHistory(incomingMsg, incomingMsg.to!);
-      } else {
-        this.storeMessageHistory(incomingMsg!, incomingMsg!.from!);
+
+      if (!incomingMsg) {
+        return;
+      }
+      const contact =
+        currentUser === incomingMsg.from ? incomingMsg.to! : incomingMsg.from!;
+
+      this.storeMessageHistory(incomingMsg, contact);
+
+      if (!incomingMsg.status?.isReaded && incomingMsg.to === currentUser) {
+        let unReadMessagesCount = this.unreadMessagesMap.get(contact);
+        if (!unReadMessagesCount) {
+          unReadMessagesCount = 0;
+        }
+        unReadMessagesCount += 1;
+        this.unreadMessagesMap.set(contact, unReadMessagesCount);
+        if (this.unreadMessageCounterListener) {
+          this.unreadMessageCounterListener(contact, unReadMessagesCount);
+        }
       }
 
       if (this.newMessageListener) {
@@ -31,10 +55,20 @@ export default class MessageStorageService {
         return;
       }
 
-      if (currentUser === msgHistory[0].from) {
-        this.storage.set(msgHistory[0].to!, msgHistory);
-      } else {
-        this.storage.set(msgHistory[0].from!, msgHistory);
+      const contact =
+        currentUser === msgHistory[0].from
+          ? msgHistory[0].to!
+          : msgHistory[0].from!;
+
+      this.storage.set(contact, msgHistory);
+
+      const unReadMessagesCount = msgHistory
+        .filter((message) => !message.status?.isReaded)
+        .filter((message) => message.to === currentUser).length;
+
+      this.unreadMessagesMap.set(contact, unReadMessagesCount);
+      if (this.unreadMessageCounterListener) {
+        this.unreadMessageCounterListener(contact, unReadMessagesCount);
       }
     });
 
@@ -49,6 +83,21 @@ export default class MessageStorageService {
 
         if (this.deliveredMessageListener) {
           this.deliveredMessageListener(deliveredMsg);
+        }
+      }
+    });
+
+    registry.addMessageHandler('MSG_READ', (msg) => {
+      const msgId = msg.payload?.message?.id;
+      const readMsg = Array.from(this.storage.values())
+        .flat()
+        .filter((message) => message.id === msgId)
+        .at(0);
+      if (readMsg && readMsg.status) {
+        readMsg.status.isReaded = true;
+
+        if (this.readMessageListener) {
+          this.readMessageListener(readMsg);
         }
       }
     });
@@ -74,5 +123,22 @@ export default class MessageStorageService {
 
   public setDeliveredMessageListener(callback: (message: Message) => void) {
     this.deliveredMessageListener = callback;
+  }
+
+  public setReadMessageListener(callback: (message: Message) => void) {
+    this.readMessageListener = callback;
+  }
+
+  public setUnreadMessageCounterListener(
+    callback: (contact: string, counter: number) => void,
+  ) {
+    this.unreadMessageCounterListener = callback;
+  }
+
+  public resetUnreadMessageCounter(user: string) {
+    this.unreadMessagesMap.set(user, 0);
+    if (this.unreadMessageCounterListener) {
+      this.unreadMessageCounterListener(user, 0);
+    }
   }
 }

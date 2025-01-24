@@ -35,6 +35,7 @@ export default class ChatPageView {
       registry,
       this.dialogueView,
       this.messageService,
+      this.messageStorage,
     );
   }
 
