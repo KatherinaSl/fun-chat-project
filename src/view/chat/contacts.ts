@@ -7,6 +7,7 @@ import { createOnlineIcon } from '../../util/create-svg';
 import HandlersRegistry from '../../services/handlers-registry';
 import DialogueView from './dialogue';
 import ChatMessageService from '../../services/chat-message-service';
+import MessageStorageService from '../../services/message-storage-service';
 
 export default class ContactsView {
   private userService: UserService;
@@ -18,9 +19,24 @@ export default class ContactsView {
     registry: HandlersRegistry,
     dialogueView: DialogueView,
     messageService: ChatMessageService,
+    messageStorage: MessageStorageService,
   ) {
     this.userService = userService;
     this.dialogueView = dialogueView;
+
+    messageStorage.setUnreadMessageCounterListener((contact, counter) => {
+      const counterItem = document.querySelector(
+        `.main__users li[login="${contact}"] .message-counter`,
+      );
+      if (counterItem) {
+        if (counter === 0) {
+          counterItem.classList.add('hidden');
+        } else {
+          counterItem.textContent = counter.toString();
+          counterItem.classList.remove('hidden');
+        }
+      }
+    });
     registry.addMessageHandler('USER_ACTIVE', (msg) => {
       this.fillUsersList(msg);
       this.userService.saveContacts(msg.payload?.users);
@@ -82,10 +98,11 @@ export default class ContactsView {
     if (!li) {
       li = createHTMLElement('li');
       const span = createHTMLElement('span');
+      const counter = createHTMLElement('div', 'message-counter');
       li.setAttribute('login', login);
       li.addEventListener('click', this.showUserInfoHandler.bind(this));
       span.textContent = login;
-      li.append(span);
+      li.append(span, counter);
       ul.append(li);
     }
     li.setAttribute('status', `${isLogined}`);
@@ -113,7 +130,7 @@ export default class ContactsView {
 
     const li = (event.target as HTMLUListElement).closest('li');
     li?.classList.add('selected_user');
-    li?.querySelector('.message-counter')?.remove();
+    li?.querySelector('.message-counter')?.classList.add('hidden');
     const login = li?.getAttribute('login') as string;
     const contact = this.userService.getContact(login) as User;
     this.dialogueView.setContact(contact);

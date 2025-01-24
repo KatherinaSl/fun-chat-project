@@ -27,12 +27,17 @@ export default class DialogueView {
     this.messageStorage.setNewMessageListener((message) => {
       if (this.user) {
         this.showMessage(message);
+
+        if (!message.status?.isReaded && message.from === this.user?.login) {
+          this.messageService.setReadStatus(message.id!);
+          this.messageStorage.resetUnreadMessageCounter(this.user.login);
+        }
       }
     });
 
     this.messageStorage.setDeliveredMessageListener((message) => {
       const deliveredMsgStatus = document.querySelector(
-        `#${message.id} .message__status`,
+        `#msg_${message.id} .message__status`,
       );
       if (deliveredMsgStatus) {
         deliveredMsgStatus.innerHTML = createDeliveredIcon();
@@ -41,7 +46,7 @@ export default class DialogueView {
 
     this.messageStorage.setReadMessageListener((message) => {
       const readMsgStatus = document.querySelector(
-        `#${message.id}.message_right .message__status`,
+        `#msg_${message.id}.message_right .message__status`,
       );
 
       if (readMsgStatus) {
@@ -108,6 +113,7 @@ export default class DialogueView {
         this.messageService.setReadStatus(message.id!);
       }
     });
+    this.messageStorage.resetUnreadMessageCounter(this.user.login);
   }
 
   private createWelcomingMessage() {
@@ -136,7 +142,7 @@ export default class DialogueView {
     document.querySelector('.welcome-message')?.remove();
     const messages = document.querySelector('.main__chat__dialogue');
     const msgContainer = createHTMLElement('div', 'message');
-    msgContainer.id = message.id!;
+    msgContainer.id = `msg_${message.id!}`;
     msgContainer!.classList.add(
       `${message.to === this.user?.login ? 'message_right' : 'message_left'}`,
     );

@@ -72,6 +72,10 @@
           flex-grow: 0;
         }
 
+        .message-counter.hidden {
+          display: none;
+        }
+
         svg {
           order: -1;
           flex-grow: 0;
