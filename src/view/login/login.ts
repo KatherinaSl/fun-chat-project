@@ -22,14 +22,14 @@ export default class LoginView {
   constructor(
     router: Router,
     userService: UserService,
-    registry: HandlersRegistry,
+    registry: HandlersRegistry
   ) {
     this.router = router;
     this.userService = userService;
-    registry.addMessageHandler('ERROR', (msg) =>
-      this.createErrorMessage(msg.payload!.error!),
+    registry.addMessageHandler(Constants.SOCKET_MSG_TYPE.ERROR, (msg) =>
+      this.createErrorMessage(msg.payload!.error!)
     );
-    registry.addMessageHandler('USER_LOGIN', () => {
+    registry.addMessageHandler(Constants.SOCKET_MSG_TYPE.USER_LOGIN, () => {
       this.router.navigate(`${Pages.CHAT}`);
     });
   }
@@ -88,7 +88,7 @@ export default class LoginView {
 
     aboutButton.addEventListener(
       'click',
-      this.aboutButtonClickHandler.bind(this, `${Pages.ABOUT}`),
+      this.aboutButtonClickHandler.bind(this, `${Pages.ABOUT}`)
     );
     return main;
   }

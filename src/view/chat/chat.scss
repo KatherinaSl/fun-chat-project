@@ -20,7 +20,11 @@
     gap: 10px;
 
     @media (max-width: breakpoints.$breakpoint-tablet) {
-      display: none;
+      opacity: 0;
+      transition: all 0.1s ease-in-out;
+      transform: translateX(-200%);
+      z-index: 22;
+      width: 0;
     }
 
     .search-input {
@@ -38,36 +42,55 @@
         width: 80%;
         font-size: 1.2em;
       }
+
+      @media (max-width: breakpoints.$breakpoint-tablet) {
+        font-size: 0.8em;
+        width: 70%;
+      }
     }
 
     ul {
       font-size: 1.5em;
 
+      @media (max-width: breakpoints.$breakpoint-desktop) {
+        font-size: 1em;
+      }
+
+      @media (max-width: breakpoints.$breakpoint-mobile) {
+        font-size: 0.8em;
+      }
+
+      li.selected_user {
+        background-color: colors.$hover-background;
+      }
+
       li {
         @include flex(normal, flex-start);
         list-style: none;
         cursor: pointer;
-        padding: 5px 0 0 15px;
+        padding: 5px 0 5px 15px;
         gap: 20px;
 
-        @media (max-width: breakpoints.$breakpoint-desktop) {
-          font-size: 0.8em;
+        @media (max-width: breakpoints.$breakpoint-mobile) {
+          padding: 5px 0 5px 5px;
         }
 
         > span {
           flex-grow: 1;
+          align-self: center;
         }
 
         .message-counter {
+          align-self: center;
           font-size: 0.8rem;
           border-radius: 40%;
           width: 1rem;
           height: 1rem;
           margin: 0 5px;
 
-          background: #a1c2f5;
-          border: 2px solid #a1c2f5;
-          color: #fff;
+          background: colors.$message-counter-background;
+          border: colors.$message-counter-border;
+          color: colors.$button-hover;
           text-align: center;
           flex-grow: 0;
         }
@@ -81,10 +104,9 @@
           flex-grow: 0;
           width: 1rem;
           align-self: center;
-          // padding-right: 30px;
 
           @media (max-width: breakpoints.$breakpoint-desktop) {
-            width: 0.8rem;
+            width: 0.7rem;
           }
         }
 
@@ -96,6 +118,12 @@
   }
 }
 
-.selected_user {
-  background-color: colors.$hover-background;
+@media (max-width: breakpoints.$breakpoint-tablet) {
+  .main__users.open {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0%);
+    transition: all 0.1s ease-in-out;
+    width: 30vw;
+  }
 }

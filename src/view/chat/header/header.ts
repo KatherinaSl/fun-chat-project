@@ -28,14 +28,14 @@ export default class Header {
     aboutButton.textContent = Constants.APP_PAGES.ABOUT_PAGE;
     aboutButton.addEventListener(
       'click',
-      this.aboutButtonClickHandler.bind(this, `${Pages.ABOUT}`),
+      this.aboutButtonClickHandler.bind(this, `${Pages.ABOUT}`)
     );
 
     const logoutButton = createHTMLElement('button');
     logoutButton.textContent = Constants.BUTTONS.LOGOUT_BUTTON;
     logoutButton.addEventListener(
       'click',
-      this.logoutButtonHandler.bind(this, `${Pages.LOGIN}`),
+      this.logoutButtonHandler.bind(this, `${Pages.LOGIN}`)
     );
 
     container.append(username, title, aboutButton, logoutButton);
@@ -43,19 +43,19 @@ export default class Header {
     document.querySelector('body')?.append(header);
   }
 
-  private getUserName() {
-    return sessionStorage.getItem('user');
-  }
-
   public aboutButtonClickHandler(url: string) {
     this.router.navigate(url);
   }
 
   public logoutButtonHandler(url: string) {
-    const userLogin = sessionStorage.getItem('user')!;
-    const userPassword = sessionStorage.getItem('password')!;
+    const login = sessionStorage.getItem('user')!;
+    const password = sessionStorage.getItem('password')!;
     sessionStorage.clear();
     this.router.navigate(url);
-    this.chatService.logout({ login: userLogin, password: userPassword });
+    this.chatService.logout({ login, password });
+  }
+
+  private getUserName() {
+    return sessionStorage.getItem('user');
   }
 }

@@ -16,6 +16,22 @@ export const BUTTONS = {
   SEND_BUTTON: 'Send',
 };
 
+export const SOCKET_MSG_TYPE = {
+  ERROR: 'ERROR',
+  USER_LOGIN: 'USER_LOGIN',
+  USER_LOGOUT: 'USER_LOGOUT',
+  USER_ACTIVE: 'USER_ACTIVE',
+  USER_INACTIVE: 'USER_INACTIVE',
+  USER_EXTERNAL_LOGIN: 'USER_EXTERNAL_LOGIN',
+  USER_EXTERNAL_LOGOUT: 'USER_EXTERNAL_LOGOUT',
+  MSG_SEND: 'MSG_SEND',
+  MSG_FROM_USER: 'MSG_FROM_USER',
+  MSG_DELIVER: 'MSG_DELIVER',
+  MSG_READ: 'MSG_READ',
+  MSG_DELETE: 'MSG_DELETE',
+  MSG_EDIT: 'MSG_EDIT',
+} as const;
+
 export const SRC_ALT = {
   RSS_LINK: 'rsschool-link',
   GH_LINK: 'github-link',
@@ -24,6 +40,12 @@ export const SRC_ALT = {
 export const USER_STATUS = {
   ONLINE: 'online',
   OFFLINE: 'offline',
+};
+
+export const MESSAGE_ACTIONS = {
+  NEW_MESSAGE: 'message',
+  DELIVER: 'deliver',
+  READ: 'read',
 };
 
 export const NAME_PLACEHOLDER = 'Please, enter your name';

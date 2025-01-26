@@ -29,7 +29,7 @@ export default class App {
     const routes = this.createRoutes();
     this.router = new Router(routes);
     this.websocket = new WebSocketClient(
-      process.env.SERVER || 'ws://localhost:4000',
+      process.env.SERVER || 'ws://localhost:4000'
     );
     this.userService = new UserService(this.websocket);
     this.messageService = new ChatMessageService(this.websocket);
@@ -38,7 +38,7 @@ export default class App {
     this.chatView = new ChatView(
       this.userService,
       this.messageService,
-      registry,
+      registry
     );
     this.aboutView = new AboutView(this.router);
   }

@@ -20,13 +20,13 @@ export default class Footer {
       this.getFooterLinks(
         this.LINK_TO_SCHOOL,
         logoPic as string,
-        SRC_ALT.RSS_LINK,
+        SRC_ALT.RSS_LINK
       ),
       this.getFooterLinks(
         this.LINK_TO_GH_PROFILE,
         gitHubMark as string,
-        SRC_ALT.GH_LINK,
-      ),
+        SRC_ALT.GH_LINK
+      )
     );
     container.append(links);
     footer.append(container);

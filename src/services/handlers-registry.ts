@@ -13,7 +13,7 @@ export default class HandlersRegistry {
 
   public addMessageHandler(
     type: string,
-    handler: (msg: SocketMessage) => void,
+    handler: (msg: SocketMessage) => void
   ) {
     this.handlers.set(type, handler);
   }

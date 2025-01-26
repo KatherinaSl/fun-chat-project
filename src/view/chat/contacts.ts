@@ -1,6 +1,10 @@
 import './chat.scss';
 import createHTMLElement from '../../util/create-element';
-import { SEARCH_PLACEHOLDER, USER_STATUS } from '../../constants';
+import {
+  SOCKET_MSG_TYPE,
+  SEARCH_PLACEHOLDER,
+  USER_STATUS,
+} from '../../constants';
 import UserService from '../../services/user-service';
 import { SocketMessage, User } from '../../data/interfaces';
 import { createOnlineIcon } from '../../util/create-svg';
@@ -14,19 +18,22 @@ export default class ContactsView {
 
   private dialogueView: DialogueView;
 
+  private messageService: ChatMessageService;
+
   constructor(
     userService: UserService,
     registry: HandlersRegistry,
     dialogueView: DialogueView,
     messageService: ChatMessageService,
-    messageStorage: MessageStorageService,
+    messageStorage: MessageStorageService
   ) {
     this.userService = userService;
     this.dialogueView = dialogueView;
+    this.messageService = messageService;
 
     messageStorage.setUnreadMessageCounterListener((contact, counter) => {
       const counterItem = document.querySelector(
-        `.main__users li[login="${contact}"] .message-counter`,
+        `.main__users li[login="${contact}"] .message-counter`
       );
       if (counterItem) {
         if (counter === 0) {
@@ -37,33 +44,37 @@ export default class ContactsView {
         }
       }
     });
-    registry.addMessageHandler('USER_ACTIVE', (msg) => {
-      this.fillUsersList(msg);
-      this.userService.saveContacts(msg.payload?.users);
-      const currentUser = sessionStorage.getItem('user');
-      msg.payload?.users
-        ?.filter((user) => currentUser !== user.login)
-        .forEach((user) => {
-          messageService.fetchMsgHistory(user);
-        });
+    registry.addMessageHandler(SOCKET_MSG_TYPE.USER_ACTIVE, (msg) => {
+      const currentUser = sessionStorage.getItem('user')!;
+      this.contactsHandler(msg, currentUser);
     });
-    registry.addMessageHandler('USER_INACTIVE', (msg) => {
-      this.fillUsersList(msg);
-      this.userService.saveContacts(msg.payload?.users);
-      msg.payload?.users?.forEach((user) => {
-        messageService.fetchMsgHistory(user);
+    registry.addMessageHandler(SOCKET_MSG_TYPE.USER_INACTIVE, (msg) => {
+      this.contactsHandler(msg);
+    });
+    registry.addMessageHandler(
+      SOCKET_MSG_TYPE.USER_EXTERNAL_LOGIN,
+      this.userOnlineStatusChangeHandler.bind(this)
+    );
+    registry.addMessageHandler(
+      SOCKET_MSG_TYPE.USER_EXTERNAL_LOGOUT,
+      this.userOnlineStatusChangeHandler.bind(this)
+    );
+  }
+
+  private contactsHandler(msg: SocketMessage, currentUser?: string) {
+    this.fillUsersList(msg);
+    this.userService.saveContacts(msg.payload?.users);
+    msg.payload?.users
+      ?.filter((user) => currentUser !== user.login)
+      .forEach((user) => {
+        this.messageService.requestMsgHistory(user);
       });
-    });
-    registry.addMessageHandler('USER_EXTERNAL_LOGIN', (msg) => {
-      this.createOrUpdateUserRecord(msg.payload!.user!);
-      this.userService.updateContact(msg.payload!.user!);
-      this.updateUserStatus();
-    });
-    registry.addMessageHandler('USER_EXTERNAL_LOGOUT', (msg) => {
-      this.createOrUpdateUserRecord(msg.payload!.user!);
-      this.userService.updateContact(msg.payload!.user!);
-      this.updateUserStatus();
-    });
+  }
+
+  private userOnlineStatusChangeHandler(msg: SocketMessage) {
+    this.createOrUpdateUserRecord(msg.payload!.user!);
+    this.userService.updateContact(msg.payload!.user!);
+    this.updateUserStatus();
   }
 
   public create(): Node {
@@ -84,7 +95,7 @@ export default class ContactsView {
   private fillUsersList(msg: SocketMessage) {
     const userLogin = sessionStorage.getItem('user');
     const users = msg.payload?.users!.filter(
-      (user) => user.login !== userLogin,
+      (user) => user.login !== userLogin
     );
     users?.forEach((user) => {
       this.createOrUpdateUserRecord(user);

@@ -24,7 +24,7 @@ header {
       }
 
       @media (max-width: breakpoints.$breakpoint-tablet) {
-        font-size: 1em;
+        font-size: 1.2em;
       }
 
       @media (max-width: breakpoints.$breakpoint-mobile) {
@@ -34,6 +34,10 @@ header {
 
     h1 {
       flex-grow: 1;
+
+      @media (max-width: breakpoints.$breakpoint-tablet) {
+        font-size: 1.2em;
+      }
 
       @media (max-width: breakpoints.$breakpoint-mobile) {
         font-size: 1em;
