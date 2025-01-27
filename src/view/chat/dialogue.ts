@@ -9,6 +9,8 @@ import {
   createDeliveredIcon,
   createMenuIcon,
   createReadIcon,
+  createBinIcon,
+  createEditIcon,
 } from '../../util/create-svg';
 import MessageStorageService from '../../services/message-storage-service';
 
@@ -41,6 +43,11 @@ export default class DialogueView {
     this.messageStorage.setMessageListener(
       Constants.MESSAGE_ACTIONS.READ,
       this.readMessageCallback.bind(this)
+    );
+
+    this.messageStorage.setMessageListener(
+      Constants.MESSAGE_ACTIONS.DELETE,
+      this.deleteMessageCallback.bind(this)
     );
   }
 
@@ -120,6 +127,13 @@ export default class DialogueView {
     }
   }
 
+  private deleteMessageCallback(message: Message) {
+    const deleteMsg = document.querySelector(
+      `#msg_${message.id}.message_right`
+    );
+    deleteMsg?.remove();
+  }
+
   private deliverMessageCallback(message: Message) {
     const deliveredMsgStatus = document.querySelector(
       `#msg_${message.id} .message__status`
@@ -176,6 +190,7 @@ export default class DialogueView {
     msgContainer!.classList.add(
       `${message.to === this.user?.login ? 'message_right' : 'message_left'}`
     );
+
     const userInfo = createHTMLElement('p', 'message__user');
     const msgUser = createHTMLElement('span');
     msgUser.innerText = message.from as string;
@@ -187,22 +202,39 @@ export default class DialogueView {
     }
 
     userInfo.append(msgUser, msgTime);
-    const msgText = createHTMLElement('p');
+    const msgText = createHTMLElement('p', 'message__text');
     msgText.innerText = message.text as string;
 
-    const msgStatus = createHTMLElement('div', 'message__status');
+    const msgStatuses = createHTMLElement('div', 'message__status');
+    const binDiv = createHTMLElement('div', 'message_delete');
+    const editDiv = createHTMLElement('div', 'message_edit');
+    const deliveryStatus = createHTMLElement('div', 'message_delivery');
 
-    if (message.status?.isDelivered && message.to === this.user?.login) {
-      msgStatus.innerHTML = createDeliveredIcon();
+    binDiv.addEventListener('click', this.deleteMessageHandler.bind(this));
+
+    msgStatuses.append(deliveryStatus, binDiv, editDiv);
+
+    if (message.to === this.user?.login) {
+      if (message.status?.isDelivered) {
+        deliveryStatus.innerHTML = createDeliveredIcon();
+      }
+
+      if (message.status?.isReaded) {
+        deliveryStatus.innerHTML = createReadIcon();
+      }
+      binDiv.innerHTML = createBinIcon();
+      editDiv.innerHTML = createEditIcon();
     }
 
-    if (message.status?.isReaded && message.to === this.user?.login) {
-      msgStatus.innerHTML = createReadIcon();
-    }
-
-    msgContainer.append(userInfo, msgText, msgStatus);
+    msgContainer.append(userInfo, msgText, msgStatuses);
     messages?.append(msgContainer);
 
     messages?.scrollTo(0, messages.scrollHeight);
+  }
+
+  private deleteMessageHandler(event: Event) {
+    const message = (event.target as HTMLDivElement).closest('.message_right');
+    const messageId = message?.id.slice(4) as string;
+    this.messageService.sendDeleteStatus(messageId);
   }
 }

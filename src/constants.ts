@@ -46,6 +46,7 @@ export const MESSAGE_ACTIONS = {
   NEW_MESSAGE: 'message',
   DELIVER: 'deliver',
   READ: 'read',
+  DELETE: 'delete',
 };
 
 export const NAME_PLACEHOLDER = 'Please, enter your name';

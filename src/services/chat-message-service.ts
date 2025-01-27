@@ -30,4 +30,11 @@ export default class ChatMessageService {
     });
     this.websocket.send(socketMsg);
   }
+
+  public sendDeleteStatus(messageId: string) {
+    const socketMsg = createSocketMessage(SOCKET_MSG_TYPE.MSG_DELETE, {
+      message: { id: messageId },
+    });
+    this.websocket.send(socketMsg);
+  }
 }
