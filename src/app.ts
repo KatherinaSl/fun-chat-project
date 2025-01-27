@@ -9,21 +9,20 @@ import Header from './view/chat/header/header';
 import Footer from './view/chat/footer/footer';
 import ChatMessageService from './services/chat-message-service';
 import HandlersRegistry from './services/handlers-registry';
+import { removeHTMLElements } from './util/html-utils';
 
 export default class App {
-  private loginView: LoginView;
+  private loginView?: LoginView;
 
-  private chatView: ChatView;
+  private chatView?: ChatView;
 
-  private aboutView: AboutView;
+  private aboutView?: AboutView;
 
-  private userService: UserService;
+  private userService?: UserService;
 
   private websocket: WebSocketClient;
 
   private router: Router;
-
-  private messageService: ChatMessageService;
 
   constructor() {
     const routes = this.createRoutes();
@@ -31,19 +30,16 @@ export default class App {
     this.websocket = new WebSocketClient(
       process.env.SERVER || 'ws://localhost:4000'
     );
-    this.userService = new UserService(this.websocket);
-    this.messageService = new ChatMessageService(this.websocket);
-    const registry = new HandlersRegistry(this.websocket);
-    this.loginView = new LoginView(this.router, this.userService, registry);
-    this.chatView = new ChatView(
-      this.userService,
-      this.messageService,
-      registry
-    );
-    this.aboutView = new AboutView(this.router);
   }
 
-  public start() {}
+  public initApp() {
+    this.userService = new UserService(this.websocket);
+    const messageService = new ChatMessageService(this.websocket);
+    const registry = new HandlersRegistry(this.websocket);
+    this.loginView = new LoginView(this.router, this.userService, registry);
+    this.chatView = new ChatView(this.userService, messageService, registry);
+    this.aboutView = new AboutView(this.router);
+  }
 
   public createRoutes() {
     return [
@@ -67,26 +63,21 @@ export default class App {
   }
 
   private createLoginView() {
-    document.querySelector('body')!.append(this.loginView.create());
+    document.querySelector('body')!.append(this.loginView!.create());
   }
 
   private createChatView() {
-    document.querySelector('header')?.remove();
-    document.querySelector('footer')?.remove();
+    removeHTMLElements(['header', 'main', 'footer']);
     const footer = new Footer();
-    const header = new Header(this.router, this.userService);
-    document.querySelector('main')?.remove();
+    const header = new Header(this.router, this.userService!);
     header.create();
-    document.querySelector('body')!.append(this.chatView.create());
+    document.querySelector('body')!.append(this.chatView!.create());
     footer.create();
   }
 
   private createAboutPageView() {
-    document.querySelector('main')?.remove();
-    document.querySelector('header')?.remove();
-    document.querySelector('footer')?.remove();
-
-    document.querySelector('body')!.append(this.aboutView.create());
+    removeHTMLElements(['header', 'main', 'footer']);
+    document.querySelector('body')!.append(this.aboutView!.create());
   }
 
   private grantAccessToUsers() {
@@ -97,3 +88,6 @@ export default class App {
     }
   }
 }
+
+const app = new App();
+app.initApp();

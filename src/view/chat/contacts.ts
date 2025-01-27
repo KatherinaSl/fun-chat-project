@@ -1,5 +1,5 @@
 import './chat.scss';
-import createHTMLElement from '../../util/create-element';
+import { createHTMLElement } from '../../util/html-utils';
 import {
   SOCKET_MSG_TYPE,
   SEARCH_PLACEHOLDER,
@@ -31,19 +31,9 @@ export default class ContactsView {
     this.dialogueView = dialogueView;
     this.messageService = messageService;
 
-    messageStorage.setUnreadMessageCounterListener((contact, counter) => {
-      const counterItem = document.querySelector(
-        `.main__users li[login="${contact}"] .message-counter`
-      );
-      if (counterItem) {
-        if (counter === 0) {
-          counterItem.classList.add('hidden');
-        } else {
-          counterItem.textContent = counter.toString();
-          counterItem.classList.remove('hidden');
-        }
-      }
-    });
+    messageStorage.setUnreadMessageCounterListener(
+      this.unreadMessageCounterCallback()
+    );
     registry.addMessageHandler(SOCKET_MSG_TYPE.USER_ACTIVE, (msg) => {
       const currentUser = sessionStorage.getItem('user')!;
       this.contactsHandler(msg, currentUser);
@@ -59,6 +49,21 @@ export default class ContactsView {
       SOCKET_MSG_TYPE.USER_EXTERNAL_LOGOUT,
       this.userOnlineStatusChangeHandler.bind(this)
     );
+  }
+
+  public create(): Node {
+    const userList = createHTMLElement('div', 'main__users');
+    const form = createHTMLElement('form');
+    const input = createHTMLElement('input', 'search-input');
+    input.setAttribute('placeholder', SEARCH_PLACEHOLDER);
+    input.setAttribute('type', 'text');
+    input.addEventListener('keyup', this.searchUserHandler.bind(this));
+    form.append(input);
+    const ul = createHTMLElement('ul');
+    userList.append(form, ul);
+    this.userService.requestAllLoginUsers();
+    this.userService.requestAllLogoutUsers();
+    return userList;
   }
 
   private contactsHandler(msg: SocketMessage, currentUser?: string) {
@@ -77,19 +82,23 @@ export default class ContactsView {
     this.updateUserStatus();
   }
 
-  public create(): Node {
-    const userList = createHTMLElement('div', 'main__users');
-    const form = createHTMLElement('form');
-    const input = createHTMLElement('input', 'search-input');
-    input.setAttribute('placeholder', SEARCH_PLACEHOLDER);
-    input.setAttribute('type', 'text');
-    input.addEventListener('keyup', this.searchUserHandler.bind(this));
-    form.append(input);
-    const ul = createHTMLElement('ul');
-    userList.append(form, ul);
-    this.userService.requestAllLoginUsers();
-    this.userService.requestAllLogoutUsers();
-    return userList;
+  private unreadMessageCounterCallback(): (
+    contact: string,
+    counter: number
+  ) => void {
+    return (contact, counter) => {
+      const counterItem = document.querySelector(
+        `.main__users li[login="${contact}"] .message-counter`
+      );
+      if (counterItem) {
+        if (counter === 0) {
+          counterItem.classList.add('hidden');
+        } else {
+          counterItem.textContent = counter.toString();
+          counterItem.classList.remove('hidden');
+        }
+      }
+    };
   }
 
   private fillUsersList(msg: SocketMessage) {
@@ -110,6 +119,7 @@ export default class ContactsView {
       li = createHTMLElement('li');
       const span = createHTMLElement('span');
       const counter = createHTMLElement('div', 'message-counter');
+      counter.classList.add('hidden');
       li.setAttribute('login', login);
       li.addEventListener('click', this.showUserInfoHandler.bind(this));
       span.textContent = login;

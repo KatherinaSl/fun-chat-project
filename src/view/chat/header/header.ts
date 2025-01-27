@@ -1,5 +1,5 @@
 import './header.scss';
-import createHTMLElement from '../../../util/create-element';
+import { createHTMLElement } from '../../../util/html-utils';
 import Pages from '../../../routing/pages';
 import Router from '../../../routing/router';
 import UserService from '../../../services/user-service';

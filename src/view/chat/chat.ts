@@ -1,5 +1,5 @@
 import './chat.scss';
-import createHTMLElement from '../../util/create-element';
+import { createHTMLElement } from '../../util/html-utils';
 import UserService from '../../services/user-service';
 import DialogueView from './dialogue';
 import ChatMessageService from '../../services/chat-message-service';

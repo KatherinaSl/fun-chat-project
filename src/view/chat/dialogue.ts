@@ -1,7 +1,7 @@
 import './dialogue.scss';
 import './chat.scss';
 import { Message, User } from '../../data/interfaces';
-import createHTMLElement from '../../util/create-element';
+import { createHTMLElement, removeHTMLElements } from '../../util/html-utils';
 import * as Constants from '../../constants';
 import ChatMessageService from '../../services/chat-message-service';
 import getConvertedTime from '../../util/date-util';
@@ -30,41 +30,17 @@ export default class DialogueView {
 
     this.messageStorage.setMessageListener(
       Constants.MESSAGE_ACTIONS.NEW_MESSAGE,
-      (message) => {
-        if (this.user) {
-          this.showMessage(message);
-
-          if (!message.status?.isReaded && message.from === this.user?.login) {
-            this.messageService.sendReadStatus(message.id!);
-            this.messageStorage.resetUnreadMessageCounter(this.user.login);
-          }
-        }
-      }
+      this.newMessageCallback.bind(this)
     );
 
     this.messageStorage.setMessageListener(
       Constants.MESSAGE_ACTIONS.DELIVER,
-      (message) => {
-        const deliveredMsgStatus = document.querySelector(
-          `#msg_${message.id} .message__status`
-        );
-        if (deliveredMsgStatus) {
-          deliveredMsgStatus.innerHTML = createDeliveredIcon();
-        }
-      }
+      this.deliverMessageCallback.bind(this)
     );
 
     this.messageStorage.setMessageListener(
       Constants.MESSAGE_ACTIONS.READ,
-      (message) => {
-        const readMsgStatus = document.querySelector(
-          `#msg_${message.id}.message_right .message__status`
-        );
-
-        if (readMsgStatus) {
-          readMsgStatus.innerHTML = createReadIcon();
-        }
-      }
+      this.readMessageCallback.bind(this)
     );
   }
 
@@ -134,6 +110,36 @@ export default class DialogueView {
     this.messageStorage.resetUnreadMessageCounter(this.user.login);
   }
 
+  private readMessageCallback(message: Message) {
+    const readMsgStatus = document.querySelector(
+      `#msg_${message.id}.message_right .message__status`
+    );
+
+    if (readMsgStatus) {
+      readMsgStatus.innerHTML = createReadIcon();
+    }
+  }
+
+  private deliverMessageCallback(message: Message) {
+    const deliveredMsgStatus = document.querySelector(
+      `#msg_${message.id} .message__status`
+    );
+    if (deliveredMsgStatus) {
+      deliveredMsgStatus.innerHTML = createDeliveredIcon();
+    }
+  }
+
+  private newMessageCallback(message: Message) {
+    if (this.user) {
+      this.showMessage(message);
+
+      if (!message.status?.isReaded && message.from === this.user?.login) {
+        this.messageService.sendReadStatus(message.id!);
+        this.messageStorage.resetUnreadMessageCounter(this.user.login);
+      }
+    }
+  }
+
   private burgerIconHandler(event: Event) {
     const icon = (event.target as HTMLDivElement).closest('div')!;
     icon.classList.toggle('transform');
@@ -163,7 +169,7 @@ export default class DialogueView {
   }
 
   private showMessage(message: Message) {
-    document.querySelector('.welcome-message')?.remove();
+    removeHTMLElements(['.welcome-message']);
     const messages = document.querySelector('.main__chat__dialogue');
     const msgContainer = createHTMLElement('div', 'message');
     msgContainer.id = `msg_${message.id!}`;

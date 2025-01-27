@@ -1,5 +1,5 @@
 import './footer.scss';
-import createHTMLElement from '../../../util/create-element';
+import { createHTMLElement } from '../../../util/html-utils';
 import logoPic from '../../../assets/rsschool-logo.jpg';
 import gitHubMark from '../../../assets/gitHub-Mark.png';
 import { SRC_ALT } from '../../../constants';

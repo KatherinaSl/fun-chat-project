@@ -1,4 +1,4 @@
-import createHTMLElement from './create-element';
+import { createHTMLElement } from './html-utils';
 
 export default class FormInputBuilder {
   private input: HTMLInputElement;
@@ -7,22 +7,15 @@ export default class FormInputBuilder {
 
   private svgLabel?: string;
 
-  constructor() {
+  private type: string = 'text';
+
+  constructor(id: string) {
     this.input = createHTMLElement('input') as HTMLInputElement;
-  }
-
-  public setId(id: string): FormInputBuilder {
     this.input.id = id;
-    return this;
-  }
-
-  public setName(username: string): FormInputBuilder {
-    this.input.name = username;
-    return this;
   }
 
   public setType(type: string): FormInputBuilder {
-    this.input.type = type;
+    this.type = type;
     return this;
   }
 
@@ -63,6 +56,7 @@ export default class FormInputBuilder {
     }
 
     this.input.required = true;
+    this.input.type = this.type;
     this.input.oninvalid = (event) => event.preventDefault();
 
     divReq.textContent = this.requirements;
