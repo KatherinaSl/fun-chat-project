@@ -1,6 +1,10 @@
 import './chat.scss';
-import createHTMLElement from '../../util/create-element';
-import { SEARCH_PLACEHOLDER, USER_STATUS } from '../../constants';
+import { createHTMLElement } from '../../util/html-utils';
+import {
+  SOCKET_MSG_TYPE,
+  SEARCH_PLACEHOLDER,
+  USER_STATUS,
+} from '../../constants';
 import UserService from '../../services/user-service';
 import { SocketMessage, User } from '../../data/interfaces';
 import { createOnlineIcon } from '../../util/create-svg';
@@ -14,56 +18,37 @@ export default class ContactsView {
 
   private dialogueView: DialogueView;
 
+  private messageService: ChatMessageService;
+
   constructor(
     userService: UserService,
     registry: HandlersRegistry,
     dialogueView: DialogueView,
     messageService: ChatMessageService,
-    messageStorage: MessageStorageService,
+    messageStorage: MessageStorageService
   ) {
     this.userService = userService;
     this.dialogueView = dialogueView;
+    this.messageService = messageService;
 
-    messageStorage.setUnreadMessageCounterListener((contact, counter) => {
-      const counterItem = document.querySelector(
-        `.main__users li[login="${contact}"] .message-counter`,
-      );
-      if (counterItem) {
-        if (counter === 0) {
-          counterItem.classList.add('hidden');
-        } else {
-          counterItem.textContent = counter.toString();
-          counterItem.classList.remove('hidden');
-        }
-      }
+    messageStorage.setUnreadMessageCounterListener(
+      this.unreadMessageCounterCallback()
+    );
+    registry.addMessageHandler(SOCKET_MSG_TYPE.USER_ACTIVE, (msg) => {
+      const currentUser = sessionStorage.getItem('user')!;
+      this.contactsHandler(msg, currentUser);
     });
-    registry.addMessageHandler('USER_ACTIVE', (msg) => {
-      this.fillUsersList(msg);
-      this.userService.saveContacts(msg.payload?.users);
-      const currentUser = sessionStorage.getItem('user');
-      msg.payload?.users
-        ?.filter((user) => currentUser !== user.login)
-        .forEach((user) => {
-          messageService.fetchMsgHistory(user);
-        });
+    registry.addMessageHandler(SOCKET_MSG_TYPE.USER_INACTIVE, (msg) => {
+      this.contactsHandler(msg);
     });
-    registry.addMessageHandler('USER_INACTIVE', (msg) => {
-      this.fillUsersList(msg);
-      this.userService.saveContacts(msg.payload?.users);
-      msg.payload?.users?.forEach((user) => {
-        messageService.fetchMsgHistory(user);
-      });
-    });
-    registry.addMessageHandler('USER_EXTERNAL_LOGIN', (msg) => {
-      this.createOrUpdateUserRecord(msg.payload!.user!);
-      this.userService.updateContact(msg.payload!.user!);
-      this.updateUserStatus();
-    });
-    registry.addMessageHandler('USER_EXTERNAL_LOGOUT', (msg) => {
-      this.createOrUpdateUserRecord(msg.payload!.user!);
-      this.userService.updateContact(msg.payload!.user!);
-      this.updateUserStatus();
-    });
+    registry.addMessageHandler(
+      SOCKET_MSG_TYPE.USER_EXTERNAL_LOGIN,
+      this.userOnlineStatusChangeHandler.bind(this)
+    );
+    registry.addMessageHandler(
+      SOCKET_MSG_TYPE.USER_EXTERNAL_LOGOUT,
+      this.userOnlineStatusChangeHandler.bind(this)
+    );
   }
 
   public create(): Node {
@@ -81,10 +66,45 @@ export default class ContactsView {
     return userList;
   }
 
+  private contactsHandler(msg: SocketMessage, currentUser?: string) {
+    this.fillUsersList(msg);
+    this.userService.saveContacts(msg.payload?.users);
+    msg.payload?.users
+      ?.filter((user) => currentUser !== user.login)
+      .forEach((user) => {
+        this.messageService.requestMsgHistory(user);
+      });
+  }
+
+  private userOnlineStatusChangeHandler(msg: SocketMessage) {
+    this.createOrUpdateUserRecord(msg.payload!.user!);
+    this.userService.updateContact(msg.payload!.user!);
+    this.updateUserStatus();
+  }
+
+  private unreadMessageCounterCallback(): (
+    contact: string,
+    counter: number
+  ) => void {
+    return (contact, counter) => {
+      const counterItem = document.querySelector(
+        `.main__users li[login="${contact}"] .message-counter`
+      );
+      if (counterItem) {
+        if (counter === 0) {
+          counterItem.classList.add('hidden');
+        } else {
+          counterItem.textContent = counter.toString();
+          counterItem.classList.remove('hidden');
+        }
+      }
+    };
+  }
+
   private fillUsersList(msg: SocketMessage) {
     const userLogin = sessionStorage.getItem('user');
     const users = msg.payload?.users!.filter(
-      (user) => user.login !== userLogin,
+      (user) => user.login !== userLogin
     );
     users?.forEach((user) => {
       this.createOrUpdateUserRecord(user);
@@ -99,6 +119,7 @@ export default class ContactsView {
       li = createHTMLElement('li');
       const span = createHTMLElement('span');
       const counter = createHTMLElement('div', 'message-counter');
+      counter.classList.add('hidden');
       li.setAttribute('login', login);
       li.addEventListener('click', this.showUserInfoHandler.bind(this));
       span.textContent = login;

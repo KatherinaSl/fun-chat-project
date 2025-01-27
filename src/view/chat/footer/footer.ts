@@ -1,5 +1,5 @@
 import './footer.scss';
-import createHTMLElement from '../../../util/create-element';
+import { createHTMLElement } from '../../../util/html-utils';
 import logoPic from '../../../assets/rsschool-logo.jpg';
 import gitHubMark from '../../../assets/gitHub-Mark.png';
 import { SRC_ALT } from '../../../constants';
@@ -20,13 +20,13 @@ export default class Footer {
       this.getFooterLinks(
         this.LINK_TO_SCHOOL,
         logoPic as string,
-        SRC_ALT.RSS_LINK,
+        SRC_ALT.RSS_LINK
       ),
       this.getFooterLinks(
         this.LINK_TO_GH_PROFILE,
         gitHubMark as string,
-        SRC_ALT.GH_LINK,
-      ),
+        SRC_ALT.GH_LINK
+      )
     );
     container.append(links);
     footer.append(container);

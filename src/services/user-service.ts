@@ -1,27 +1,35 @@
 import { User } from '../data/interfaces';
-import SocketService from './socket-service';
+import WebSocketClient from './websocket';
+import createSocketMessage from '../util/socket-utils';
+import { SOCKET_MSG_TYPE } from '../constants';
 
-export default class UserService extends SocketService {
+export default class UserService {
   private contacts = new Map<string, User>();
 
+  private websocket: WebSocketClient;
+
+  constructor(websocket: WebSocketClient) {
+    this.websocket = websocket;
+  }
+
   public login(user: User) {
-    const msg = this.createSocketMessage('USER_LOGIN', { user });
+    const msg = createSocketMessage(SOCKET_MSG_TYPE.USER_LOGIN, { user });
     this.websocket.send(msg);
   }
 
   public logout(user: User) {
-    const msg = this.createSocketMessage('USER_LOGOUT', { user });
+    const msg = createSocketMessage(SOCKET_MSG_TYPE.USER_LOGOUT, { user });
     this.websocket.send(msg);
     this.websocket.close();
   }
 
   public requestAllLoginUsers() {
-    const msg = this.createSocketMessage('USER_ACTIVE');
+    const msg = createSocketMessage(SOCKET_MSG_TYPE.USER_ACTIVE);
     this.websocket.send(msg);
   }
 
   public requestAllLogoutUsers() {
-    const msg = this.createSocketMessage('USER_INACTIVE');
+    const msg = createSocketMessage(SOCKET_MSG_TYPE.USER_INACTIVE);
     this.websocket.send(msg);
   }
 

@@ -30,6 +30,7 @@
         "endOfLine": "auto"
       }
     ],
-    "class-methods-use-this": "off"
+    "class-methods-use-this": "off",
+    "comma-dangle": 0
   }
 }

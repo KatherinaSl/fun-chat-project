@@ -1,4 +1,4 @@
-export default function getConvertedTime(ms: number): string | null {
+export default function getConvertedTime(ms: number): string {
   const date = new Date(ms);
 
   const day = String(date.getDate()).padStart(2, '0');

@@ -19,9 +19,36 @@
     height: 10%;
     border-radius: 0 5px 0 0;
     background-image: colors.$background-image-dialogue-header;
+
+    @media (max-width: breakpoints.$breakpoint-tablet) {
+      border-radius: 5px 5px 0 0;
+    }
+
+    .icon-wrapper.transform {
+      transform: rotate(90deg);
+    }
+
+    .icon-wrapper {
+      visibility: hidden;
+
+      @media (max-width: breakpoints.$breakpoint-tablet) {
+        visibility: visible;
+        cursor: pointer;
+        margin: 10px;
+      }
+    }
+
     .user-name {
       font-size: 1.5em;
       padding: 10px;
+
+      @media (max-width: breakpoints.$breakpoint-tablet) {
+        font-size: 1.2em;
+      }
+
+      @media (max-width: breakpoints.$breakpoint-mobile) {
+        font-size: 0.8em;
+      }
     }
 
     .user-status {
@@ -33,11 +60,13 @@
   .message.message_right {
     align-self: flex-end;
     border-radius: 15px 0 15px 15px;
+    background: colors.$button-color;
   }
 
   .message.message_left {
     align-self: flex-start;
     border-radius: 0 15px 15px 15px;
+    background: colors.$border-color;
   }
 
   .main__chat__dialogue {
@@ -49,21 +78,23 @@
     .welcome-message {
       font-size: 1.5em;
 
-      @media (max-width: breakpoints.$breakpoint-mobile) {
+      @media (max-width: breakpoints.$breakpoint-desktop) {
+        font-size: 1.2em;
+      }
+
+      @media (max-width: breakpoints.$breakpoint-tablet) {
         font-size: 1em;
       }
     }
 
     .message {
-      background: colors.$button-color;
       display: flex;
       margin: 5px;
       flex-direction: column;
       padding: 10px;
-      // gap: 10px;
 
       .message__user {
-        border-bottom: 1px solid black;
+        border-bottom: colors.$message-dividing-border;
         display: flex;
         font-size: 1em;
         margin-bottom: 10px;
@@ -76,6 +107,7 @@
       .message__status {
         display: flex;
         justify-content: flex-end;
+        height: 1.2em;
 
         svg {
           width: 1.2em;

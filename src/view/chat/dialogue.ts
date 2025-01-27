@@ -1,11 +1,15 @@
-import { Message, User } from '../../data/interfaces';
-import createHTMLElement from '../../util/create-element';
 import './dialogue.scss';
 import './chat.scss';
+import { Message, User } from '../../data/interfaces';
+import { createHTMLElement, removeHTMLElements } from '../../util/html-utils';
 import * as Constants from '../../constants';
 import ChatMessageService from '../../services/chat-message-service';
 import getConvertedTime from '../../util/date-util';
-import { createDeliveredIcon, createReadIcon } from '../../util/create-svg';
+import {
+  createDeliveredIcon,
+  createMenuIcon,
+  createReadIcon,
+} from '../../util/create-svg';
 import MessageStorageService from '../../services/message-storage-service';
 
 export default class DialogueView {
@@ -18,49 +22,39 @@ export default class DialogueView {
   constructor(
     messageService: ChatMessageService,
     messageStorage: MessageStorageService,
-    user?: User,
+    user?: User
   ) {
     this.user = user;
     this.messageService = messageService;
     this.messageStorage = messageStorage;
 
-    this.messageStorage.setNewMessageListener((message) => {
-      if (this.user) {
-        this.showMessage(message);
+    this.messageStorage.setMessageListener(
+      Constants.MESSAGE_ACTIONS.NEW_MESSAGE,
+      this.newMessageCallback.bind(this)
+    );
 
-        if (!message.status?.isReaded && message.from === this.user?.login) {
-          this.messageService.setReadStatus(message.id!);
-          this.messageStorage.resetUnreadMessageCounter(this.user.login);
-        }
-      }
-    });
+    this.messageStorage.setMessageListener(
+      Constants.MESSAGE_ACTIONS.DELIVER,
+      this.deliverMessageCallback.bind(this)
+    );
 
-    this.messageStorage.setDeliveredMessageListener((message) => {
-      const deliveredMsgStatus = document.querySelector(
-        `#msg_${message.id} .message__status`,
-      );
-      if (deliveredMsgStatus) {
-        deliveredMsgStatus.innerHTML = createDeliveredIcon();
-      }
-    });
-
-    this.messageStorage.setReadMessageListener((message) => {
-      const readMsgStatus = document.querySelector(
-        `#msg_${message.id}.message_right .message__status`,
-      );
-
-      if (readMsgStatus) {
-        readMsgStatus.innerHTML = createReadIcon();
-      }
-    });
+    this.messageStorage.setMessageListener(
+      Constants.MESSAGE_ACTIONS.READ,
+      this.readMessageCallback.bind(this)
+    );
   }
 
   public create() {
     const messageField = createHTMLElement('div', 'main__chat');
     const userInfo = createHTMLElement('div', 'main__chat__user');
+
+    const icon = createHTMLElement('div', 'icon-wrapper');
+    icon.addEventListener('click', this.burgerIconHandler.bind(this));
+    icon.innerHTML = createMenuIcon();
+
     const userName = createHTMLElement('p', 'user-name');
     const userStatus = createHTMLElement('p', 'user-status');
-    userInfo.append(userName, userStatus);
+    userInfo.append(icon, userName, userStatus);
     const dialogue = createHTMLElement('div', 'main__chat__dialogue');
     const selectUserElement = createHTMLElement('p', 'welcome-message');
     selectUserElement.textContent = Constants.CHOOSE_USER_MSG;
@@ -68,7 +62,7 @@ export default class DialogueView {
     const msgField = createHTMLElement('div', 'main__chat__msg');
     const msgInput = createHTMLElement(
       'input',
-      'input-message',
+      'input-message'
     ) as HTMLInputElement;
     msgInput.setAttribute('type', 'text');
     msgInput.setAttribute('placeholder', Constants.MSG_PLACEHOLDER);
@@ -110,10 +104,46 @@ export default class DialogueView {
     messageHistory?.forEach((message) => {
       this.showMessage(message);
       if (!message.status?.isReaded && message.from === this.user?.login) {
-        this.messageService.setReadStatus(message.id!);
+        this.messageService.sendReadStatus(message.id!);
       }
     });
     this.messageStorage.resetUnreadMessageCounter(this.user.login);
+  }
+
+  private readMessageCallback(message: Message) {
+    const readMsgStatus = document.querySelector(
+      `#msg_${message.id}.message_right .message__status`
+    );
+
+    if (readMsgStatus) {
+      readMsgStatus.innerHTML = createReadIcon();
+    }
+  }
+
+  private deliverMessageCallback(message: Message) {
+    const deliveredMsgStatus = document.querySelector(
+      `#msg_${message.id} .message__status`
+    );
+    if (deliveredMsgStatus) {
+      deliveredMsgStatus.innerHTML = createDeliveredIcon();
+    }
+  }
+
+  private newMessageCallback(message: Message) {
+    if (this.user) {
+      this.showMessage(message);
+
+      if (!message.status?.isReaded && message.from === this.user?.login) {
+        this.messageService.sendReadStatus(message.id!);
+        this.messageStorage.resetUnreadMessageCounter(this.user.login);
+      }
+    }
+  }
+
+  private burgerIconHandler(event: Event) {
+    const icon = (event.target as HTMLDivElement).closest('div')!;
+    icon.classList.toggle('transform');
+    document.querySelector('.main__users')?.classList.toggle('open');
   }
 
   private createWelcomingMessage() {
@@ -139,12 +169,12 @@ export default class DialogueView {
   }
 
   private showMessage(message: Message) {
-    document.querySelector('.welcome-message')?.remove();
+    removeHTMLElements(['.welcome-message']);
     const messages = document.querySelector('.main__chat__dialogue');
     const msgContainer = createHTMLElement('div', 'message');
     msgContainer.id = `msg_${message.id!}`;
     msgContainer!.classList.add(
-      `${message.to === this.user?.login ? 'message_right' : 'message_left'}`,
+      `${message.to === this.user?.login ? 'message_right' : 'message_left'}`
     );
     const userInfo = createHTMLElement('p', 'message__user');
     const msgUser = createHTMLElement('span');

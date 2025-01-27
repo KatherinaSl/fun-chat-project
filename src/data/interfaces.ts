@@ -1,15 +1,6 @@
-export type SocketMessageType =
-  | 'USER_LOGIN'
-  | 'USER_LOGOUT'
-  | 'USER_ACTIVE'
-  | 'USER_INACTIVE'
-  | 'USER_EXTERNAL_LOGIN'
-  | 'USER_EXTERNAL_LOGOUT'
-  | 'MSG_SEND'
-  | 'MSG_FROM_USER'
-  | 'MSG_READ'
-  | 'MSG_DELETE'
-  | 'MSG_EDIT';
+import { SOCKET_MSG_TYPE } from '../constants';
+
+export type SocketMessageType = keyof typeof SOCKET_MSG_TYPE;
 
 export interface SocketMessage {
   id: string | null;

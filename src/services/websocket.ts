@@ -1,18 +1,18 @@
 import { SocketMessage } from '../data/interfaces';
+import createSocketMessage from '../util/socket-utils';
+import { SOCKET_MSG_TYPE } from '../constants';
 
 export default class WebSocketClient {
-  private websocket: WebSocket | null;
+  private websocket?: WebSocket;
 
   private url: string;
 
-  private messageQueue: string[] = [];
+  private messageQueue: SocketMessage[] = [];
 
-  private onMessage: ((msg: SocketMessage) => void) | null;
+  private onMessage?: (msg: SocketMessage) => void;
 
   constructor(url: string) {
     this.url = url;
-    this.websocket = null;
-    this.onMessage = null;
     this.openSocket();
   }
 
@@ -24,12 +24,11 @@ export default class WebSocketClient {
   }
 
   public send(message: SocketMessage) {
-    const obj = JSON.stringify(message);
     this.openSocket();
     if (this.websocket?.readyState === WebSocket.OPEN) {
-      this.websocket?.send(obj);
+      this.websocket?.send(JSON.stringify(message));
     } else {
-      this.messageQueue.push(obj);
+      this.messageQueue.push(message);
     }
   }
 
@@ -53,34 +52,27 @@ export default class WebSocketClient {
       };
     }
     if (this.websocket) {
-      // todo !!!!!!!!!!!
-      this.websocket.onopen = () => {
-        if (sessionStorage.length) {
-          const login = sessionStorage.getItem('user');
-          const pass = sessionStorage.getItem('password');
+      this.websocket.onopen = this.onOpenCallback.bind(this);
+    }
+  }
 
-          const obj = this.messageQueue[0];
-          if (!obj.includes('USER_LOGIN')) {
-            const msg = `{
-              "id":"123",
-              "type": "USER_LOGIN",
-              "payload": {
-                "user": {
-                  "login": "${login}",
-                  "password": "${pass}"
-                }
-              }
-            }`;
-            this.websocket?.send(msg);
-          }
-        }
+  private onOpenCallback() {
+    if (sessionStorage.length && this.messageQueue.length) {
+      const login = sessionStorage.getItem('user')!;
+      const password = sessionStorage.getItem('password')!;
 
-        while (this.messageQueue.length) {
-          const obj = this.messageQueue.shift()!;
+      const firstMessage = this.messageQueue[0];
+      if (firstMessage.type !== SOCKET_MSG_TYPE.USER_LOGIN) {
+        const msg = createSocketMessage(SOCKET_MSG_TYPE.USER_LOGIN, {
+          user: { login, password },
+        });
+        this.websocket?.send(JSON.stringify(msg));
+      }
+    }
 
-          this.websocket?.send(obj);
-        }
-      };
+    while (this.messageQueue.length) {
+      const obj = this.messageQueue.shift()!;
+      this.websocket?.send(JSON.stringify(obj));
     }
   }
 }

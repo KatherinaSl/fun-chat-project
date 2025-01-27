@@ -1,6 +1,6 @@
 import './login.scss';
 import './error.scss';
-import createHTMLElement from '../../util/create-element';
+import { createHTMLElement, removeHTMLElements } from '../../util/html-utils';
 import loginPic from '../../assets/11155.jpg';
 import FormInputBuilder from '../../util/build-input';
 import { createSvgLockIcon, createSvgPersonIcon } from '../../util/create-svg';
@@ -22,14 +22,14 @@ export default class LoginView {
   constructor(
     router: Router,
     userService: UserService,
-    registry: HandlersRegistry,
+    registry: HandlersRegistry
   ) {
     this.router = router;
     this.userService = userService;
-    registry.addMessageHandler('ERROR', (msg) =>
-      this.createErrorMessage(msg.payload!.error!),
+    registry.addMessageHandler(Constants.SOCKET_MSG_TYPE.ERROR, (msg) =>
+      this.createErrorMessage(msg.payload!.error!)
     );
-    registry.addMessageHandler('USER_LOGIN', () => {
+    registry.addMessageHandler(Constants.SOCKET_MSG_TYPE.USER_LOGIN, () => {
       this.router.navigate(`${Pages.CHAT}`);
     });
   }
@@ -38,6 +38,7 @@ export default class LoginView {
     const main = createHTMLElement('main');
     const h2 = createHTMLElement('h1');
     h2.textContent = Constants.LOGIN_PHRASE;
+
     const formBox = createHTMLElement('div', 'form-box');
     const formPic = createHTMLElement('div', 'login-img');
     const img = createHTMLElement('img') as HTMLImageElement;
@@ -46,27 +47,7 @@ export default class LoginView {
     form.action = '';
     form.addEventListener('submit', this.loginClickHandler.bind(this));
 
-    const userNameInput = new FormInputBuilder()
-      .setId('username-input')
-      .setName('username')
-      .setPattern(this.NAME_REGEX)
-      .setPlaceholder(Constants.NAME_PLACEHOLDER)
-      .setRequirements(this.getLoginFieldRequirement('name', 2))
-      .setType('text')
-      .setAutocomplete('username')
-      .setSvgLabel(createSvgPersonIcon())
-      .build();
-
-    const passwordInput = new FormInputBuilder()
-      .setId('password-input')
-      .setName('password')
-      .setPattern(this.PASSWORD_REGEX)
-      .setPlaceholder(Constants.PASSWORD_PLACEHOLDER)
-      .setRequirements(this.getPasswordFieldRequirement('password', 4))
-      .setType('password')
-      .setAutocomplete('current-password')
-      .setSvgLabel(createSvgLockIcon())
-      .build();
+    const { userNameInput, passwordInput } = this.createInputForm();
 
     const button = createHTMLElement('input', 'submit') as HTMLInputElement;
     button.type = 'submit';
@@ -74,27 +55,56 @@ export default class LoginView {
 
     const aboutButton = createHTMLElement('button');
     aboutButton.textContent = Constants.APP_PAGES.ABOUT_PAGE;
+    aboutButton.addEventListener(
+      'click',
+      this.aboutButtonClickHandler.bind(this, `${Pages.ABOUT}`)
+    );
 
     form.append(userNameInput, passwordInput, button, aboutButton);
     document.body.appendChild(form);
     formPic.append(img);
     formBox.append(h2, form);
 
-    document.querySelector('main')?.remove();
-    document.querySelector('header')?.remove();
-    document.querySelector('footer')?.remove();
+    removeHTMLElements(['header', 'main', 'footer']);
 
     main.append(formPic, formBox);
-
-    aboutButton.addEventListener(
-      'click',
-      this.aboutButtonClickHandler.bind(this, `${Pages.ABOUT}`),
-    );
     return main;
   }
 
-  public delete() {
-    document.querySelector('main')?.remove();
+  public loginClickHandler(event: Event) {
+    event.preventDefault();
+    const userLogin = (
+      document.querySelector('#username-input') as HTMLInputElement
+    )?.value;
+    const userPassword = (
+      document.querySelector('#password-input') as HTMLInputElement
+    )?.value;
+    this.userService.login({ login: userLogin, password: userPassword });
+    this.setUserInfo(userLogin, userPassword);
+  }
+
+  public aboutButtonClickHandler(url: string) {
+    this.router.navigate(url);
+  }
+
+  private createInputForm() {
+    const userNameInput = new FormInputBuilder('username-input')
+      .setPattern(this.NAME_REGEX)
+      .setPlaceholder(Constants.NAME_PLACEHOLDER)
+      .setRequirements(this.getLoginFieldRequirement('name', 2))
+      .setAutocomplete('username')
+      .setSvgLabel(createSvgPersonIcon())
+      .build();
+
+    const passwordInput = new FormInputBuilder('password-input')
+      .setPattern(this.PASSWORD_REGEX)
+      .setPlaceholder(Constants.PASSWORD_PLACEHOLDER)
+      .setRequirements(this.getPasswordFieldRequirement('password', 4))
+      .setType('password')
+      .setAutocomplete('current-password')
+      .setSvgLabel(createSvgLockIcon())
+      .build();
+    return { userNameInput, passwordInput };
   }
 
   private createErrorMessage(message: string) {
@@ -124,22 +134,6 @@ export default class LoginView {
     const firstRequirement = `Your ${name} should consist of only English alphabet letters.`;
     const secondRequirement = `Your password must have at least ${minLength} characters  and maximum 10 characters`;
     return `${firstRequirement}\n${secondRequirement}`;
-  }
-
-  public loginClickHandler(event: Event) {
-    event.preventDefault();
-    const userLogin = (
-      document.querySelector('#username-input') as HTMLInputElement
-    )?.value;
-    const userPassword = (
-      document.querySelector('#password-input') as HTMLInputElement
-    )?.value;
-    this.userService.login({ login: userLogin, password: userPassword });
-    this.setUserInfo(userLogin, userPassword);
-  }
-
-  public aboutButtonClickHandler(url: string) {
-    this.router.navigate(url);
   }
 
   private setUserInfo(login: string, password: string) {
