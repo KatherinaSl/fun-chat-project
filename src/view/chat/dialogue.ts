@@ -133,9 +133,7 @@ export default class DialogueView {
   }
 
   private deleteMessageCallback(message: Message) {
-    const deleteMsg = document.querySelector(
-      `#msg_${message.id}.message_right`
-    );
+    const deleteMsg = document.querySelector(`#msg_${message.id}`);
     deleteMsg?.remove();
   }
 
