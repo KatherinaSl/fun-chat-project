@@ -34,6 +34,11 @@ export default class MessageStorageService {
       SOCKET_MSG_TYPE.MSG_READ,
       this.readMessageHandler.bind(this)
     );
+
+    registry.addMessageHandler(
+      SOCKET_MSG_TYPE.MSG_DELETE,
+      this.deleteMessageHandler.bind(this)
+    );
   }
 
   public setUnreadMessageCounterListener(
@@ -122,6 +127,14 @@ export default class MessageStorageService {
     if (readMsg && readMsg.status) {
       readMsg.status.isReaded = true;
       this.executeMessageListener(MESSAGE_ACTIONS.READ, readMsg);
+    }
+  }
+
+  private deleteMessageHandler(msg: SocketMessage) {
+    const deleteMsg = this.getMessageFromStorage(msg);
+    if (deleteMsg && deleteMsg.status) {
+      deleteMsg.status.isDelivered = true;
+      this.executeMessageListener(MESSAGE_ACTIONS.DELETE, deleteMsg);
     }
   }
 
