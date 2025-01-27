@@ -39,6 +39,11 @@ export default class MessageStorageService {
       SOCKET_MSG_TYPE.MSG_DELETE,
       this.deleteMessageHandler.bind(this)
     );
+
+    registry.addMessageHandler(
+      SOCKET_MSG_TYPE.MSG_EDIT,
+      this.editMessageHandler.bind(this)
+    );
   }
 
   public setUnreadMessageCounterListener(
@@ -133,8 +138,27 @@ export default class MessageStorageService {
   private deleteMessageHandler(msg: SocketMessage) {
     const deleteMsg = this.getMessageFromStorage(msg);
     if (deleteMsg && deleteMsg.status) {
-      deleteMsg.status.isDelivered = true;
+      deleteMsg.status.isDeleted = true;
       this.executeMessageListener(MESSAGE_ACTIONS.DELETE, deleteMsg);
+      this.deleteMessageFromStorage(deleteMsg);
+    }
+  }
+
+  private deleteMessageFromStorage(deletedMsg: Message) {
+    const currentUser = sessionStorage.getItem('user')!;
+
+    const contact = this.getContactName(currentUser, deletedMsg);
+    const messages = this.storage.get(contact);
+    const updatedMessages = messages?.filter((msg) => msg.id !== deletedMsg.id);
+    this.storage.set(contact, updatedMessages!);
+  }
+
+  private editMessageHandler(msg: SocketMessage) {
+    const editMsg = this.getMessageFromStorage(msg);
+    if (editMsg && editMsg.status) {
+      editMsg.status.isEdited = true;
+      editMsg.text = msg.payload?.message?.text;
+      this.executeMessageListener(MESSAGE_ACTIONS.EDIT, editMsg);
     }
   }
 

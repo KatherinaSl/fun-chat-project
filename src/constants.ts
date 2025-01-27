@@ -7,6 +7,8 @@ export const APP_PAGES = {
   LOGIN_PAGE: 'Login',
 };
 
+export const EDITED = 'edited';
+
 export const LOGIN_PHRASE = 'LOGIN';
 
 export const BUTTONS = {
@@ -47,6 +49,7 @@ export const MESSAGE_ACTIONS = {
   DELIVER: 'deliver',
   READ: 'read',
   DELETE: 'delete',
+  EDIT: 'edit',
 };
 
 export const NAME_PLACEHOLDER = 'Please, enter your name';

@@ -49,6 +49,11 @@ export default class DialogueView {
       Constants.MESSAGE_ACTIONS.DELETE,
       this.deleteMessageCallback.bind(this)
     );
+
+    this.messageStorage.setMessageListener(
+      Constants.MESSAGE_ACTIONS.EDIT,
+      this.editMessageCallback.bind(this)
+    );
   }
 
   public create() {
@@ -119,7 +124,7 @@ export default class DialogueView {
 
   private readMessageCallback(message: Message) {
     const readMsgStatus = document.querySelector(
-      `#msg_${message.id}.message_right .message__status`
+      `#msg_${message.id}.message_right .message_delivery`
     );
 
     if (readMsgStatus) {
@@ -134,9 +139,20 @@ export default class DialogueView {
     deleteMsg?.remove();
   }
 
+  private editMessageCallback(message: Message) {
+    const editMsg = document.querySelector(`#msg_${message.id} .message__text`);
+    if (editMsg) {
+      editMsg.textContent = message.text!;
+
+      document.querySelector(
+        `#msg_${message.id}  .message__status p`
+      )!.textContent = Constants.EDITED;
+    }
+  }
+
   private deliverMessageCallback(message: Message) {
     const deliveredMsgStatus = document.querySelector(
-      `#msg_${message.id} .message__status`
+      `#msg_${message.id} .message_delivery`
     );
     if (deliveredMsgStatus) {
       deliveredMsgStatus.innerHTML = createDeliveredIcon();
@@ -170,15 +186,22 @@ export default class DialogueView {
     const recipient = document.querySelector('.user-name')!
       .textContent as string;
     const input = document.querySelector('.input-message') as HTMLInputElement;
-    if (input.value) {
-      if (
-        (event instanceof KeyboardEvent &&
-          (event as KeyboardEvent).key === 'Enter') ||
-        event instanceof MouseEvent
-      ) {
+    if (!input.value) {
+      return;
+    }
+    if (
+      (event instanceof KeyboardEvent &&
+        (event as KeyboardEvent).key === 'Enter') ||
+      event instanceof MouseEvent
+    ) {
+      const messageId = input.getAttribute('messageid');
+      if (messageId) {
+        this.messageService.sendEditStatus(messageId, input.value);
+        input.removeAttribute('messageid');
+      } else {
         this.messageService.sendMsg({ to: recipient, text: input.value });
-        input.value = '';
       }
+      input.value = '';
     }
   }
 
@@ -208,11 +231,13 @@ export default class DialogueView {
     const msgStatuses = createHTMLElement('div', 'message__status');
     const binDiv = createHTMLElement('div', 'message_delete');
     const editDiv = createHTMLElement('div', 'message_edit');
+    const editText = createHTMLElement('p');
     const deliveryStatus = createHTMLElement('div', 'message_delivery');
 
     binDiv.addEventListener('click', this.deleteMessageHandler.bind(this));
+    editDiv.addEventListener('click', this.editMessageHandler.bind(this));
 
-    msgStatuses.append(deliveryStatus, binDiv, editDiv);
+    msgStatuses.append(deliveryStatus, binDiv, editDiv, editText);
 
     if (message.to === this.user?.login) {
       if (message.status?.isDelivered) {
@@ -226,6 +251,10 @@ export default class DialogueView {
       editDiv.innerHTML = createEditIcon();
     }
 
+    if (message.status?.isEdited) {
+      editText.textContent = Constants.EDITED;
+    }
+
     msgContainer.append(userInfo, msgText, msgStatuses);
     messages?.append(msgContainer);
 
@@ -236,5 +265,17 @@ export default class DialogueView {
     const message = (event.target as HTMLDivElement).closest('.message_right');
     const messageId = message?.id.slice(4) as string;
     this.messageService.sendDeleteStatus(messageId);
+  }
+
+  private editMessageHandler(event: Event) {
+    console.log(event.target);
+    const message = (event.target as HTMLDivElement).closest('.message_right');
+    const messageId = message?.id.slice(4) as string;
+    const messageText = message?.querySelector('.message__text')?.textContent;
+    const textInput = document.querySelector(
+      '.input-message'
+    ) as HTMLInputElement;
+    textInput.value = messageText!;
+    textInput.setAttribute('messageid', messageId);
   }
 }

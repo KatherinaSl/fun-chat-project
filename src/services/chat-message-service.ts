@@ -37,4 +37,11 @@ export default class ChatMessageService {
     });
     this.websocket.send(socketMsg);
   }
+
+  public sendEditStatus(messageId: string, messageText: string) {
+    const socketMsg = createSocketMessage(SOCKET_MSG_TYPE.MSG_EDIT, {
+      message: { id: messageId, text: messageText },
+    });
+    this.websocket.send(socketMsg);
+  }
 }
